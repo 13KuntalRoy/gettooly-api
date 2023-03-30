@@ -33,7 +33,7 @@ class ConductUserEmailView(APIView):
             }
             Util.send_email(data)
             return Response(
-                {"success": "We have sent you a link to reset your password"},
+                {"success": "We have sent you a link to your Email address to verify your account"},
                 status=HTTP_200_OK
             )
         else:
@@ -68,7 +68,7 @@ class UserEmailView(APIView):
             Util.send_email(data)
 
             return Response(
-                {"success": "We have sent you a link to reset your password"},
+                {"success": "We have sent you a link to your Email address to verify your account"},
                 status=HTTP_200_OK
             )
         else:
