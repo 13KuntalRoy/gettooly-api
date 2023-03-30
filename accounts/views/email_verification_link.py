@@ -45,7 +45,8 @@ class ConductUserEmailView(APIView):
         
 class UserEmailView(APIView):
     queryset = UserQuiz.objects.all()
-    permission_classes = [AllowAny,]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JWTAuthentication,)
   
 
     def post(self, request, *args, **kwargs):
