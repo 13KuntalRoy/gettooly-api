@@ -31,7 +31,6 @@ class UserDetailSerializer(ModelSerializer):
             "is_staff",
             "last_login",
             "password",
-            "country",
             "user_permissions",
             "groups",
         )
@@ -45,7 +44,6 @@ class ConductUserDetailSerializer(ModelSerializer):
             "is_staff",
             "last_login",
             "password",
-            "country",
             "user_permissions",
         )
 
@@ -279,6 +277,7 @@ class ConductUserUpdateUserSerializer(ModelSerializer):
             "state",
             "city",
             "pin",
+            "profile_photo"
 
         )
 
@@ -295,6 +294,7 @@ class ConductUserUpdateUserSerializer(ModelSerializer):
         instance.state = validated_data['state']
         instance.city = validated_data['city']
         instance.pin = validated_data['pin']
+        instance.profile_photo = validated_data['profile_photo']
 
         instance.save()
 

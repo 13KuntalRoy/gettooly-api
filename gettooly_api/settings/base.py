@@ -205,13 +205,14 @@ MEDIA_URL = '/mediafiles/'
 MEDIA_ROOT = str(ROOT_DIR / 'mediafiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 CORS_URLS_REGEX = r'^/api/.*$'
 
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'roykuntal1213@gmail.com'
-EMAIL_HOST_PASSWORD = 'wtqbuhjblzrjwdoe'
+EMAIL_HOST_USER = 'projecthrittikgarain@gmail.com'
+EMAIL_HOST_PASSWORD = 'wnixhwotnfufxvtv'
 EMAIL_PORT = 587
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
