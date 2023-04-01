@@ -212,7 +212,7 @@ CORS_URLS_REGEX = r'^/api/.*$'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'projecthrittikgarain@gmail.com'
-EMAIL_HOST_PASSWORD = 'wnixhwotnfufxvtv'
+EMAIL_HOST_USER = 'idk075169@gmail.com'
+EMAIL_HOST_PASSWORD = 'wtrhscrxflsokqmf'
 EMAIL_PORT = 587
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

@@ -307,7 +307,6 @@ class EmailResetPasswordSerializer(Serializer):
     class Meta:
         fields = ['email']
 
-
 class SetNewPasswordSerializer(Serializer):
     password = CharField(min_length=6, max_length=100, write_only=True)
     uidb64 = CharField(min_length=1, write_only=True)
@@ -316,21 +315,3 @@ class SetNewPasswordSerializer(Serializer):
     class Meta:
         fields = ["password", "uidb64", "token"]
 
-    def validate(self, attrs):
-        try:
-            password = attrs.get("password")
-            uidb64 = attrs.get("uidb64")
-            token = attrs.get("token")
-
-            id = force_str(urlsafe_base64_decode(uidb64))
-            user = CustomUser.objects.get(id=id)
-
-            if not PasswordResetTokenGenerator().check_token(user, token):
-                raise AuthenticationFailed("The reset link is invalid", 401)
-
-            user.set_password(password)
-            user.save()
-
-            return (user)
-        except Exception:
-            raise AuthenticationFailed("The reset link is invalid", 401)

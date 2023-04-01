@@ -1,7 +1,9 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from rest_framework.exceptions import ValidationError
+
 from django.urls import reverse
 from django.utils.encoding import (
-    DjangoUnicodeDecodeError, smart_bytes, smart_str,force_text)
+    DjangoUnicodeDecodeError, smart_bytes, smart_str)
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,7 +14,8 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UN
 from accounts.models import CustomUser
 from accounts.serializers import EmailResetPasswordSerializer, SetNewPasswordSerializer
 from accounts.utils import Util
-from rest_framework.views import APIView
+from django.forms.models import model_to_dict
+from django.utils.encoding import force_str
 
 
 class EmailResetPassword(GenericAPIView):
@@ -77,23 +80,30 @@ class PasswordTokenCheckAPI(GenericAPIView):
                 {"error": "Token is not valid, please request a new one"},
                 status=HTTP_401_UNAUTHORIZED
             )
-
-class SetNewPasswordAPIView(APIView):
+class SetNewPasswordAPIView(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = SetNewPasswordSerializer
 
     def patch(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            password = serializer.data.get("password")
-            uidb64 = serializer.data.get("uidb64")
-            token = serializer.data.get("token")
+            password = serializer.validated_data.get("password")
+            uidb64 = serializer.validated_data.get("uidb64")
+            token = serializer.validated_data.get("token")
+            
+            if not uidb64:
+                return Response(
+                    {"error": "uidb64 parameter is missing or empty"},
+                    status=HTTP_400_BAD_REQUEST
+                )
 
             try:
-                id = force_text(urlsafe_base64_decode(uidb64))
+                id = force_str(urlsafe_base64_decode(uidb64))
                 user = CustomUser.objects.get(id=id)
+                
 
                 if not PasswordResetTokenGenerator().check_token(user, token):
+
                     return Response(
                         {"error": "Token is not valid, please request a new one"},
                         status=HTTP_401_UNAUTHORIZED
@@ -112,10 +122,10 @@ class SetNewPasswordAPIView(APIView):
                     status=HTTP_200_OK
                 )
 
-            except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist, ValidationError):
+            except (TypeError, ValueError, OverflowError, UnicodeDecodeError, CustomUser.DoesNotExist):
                 return Response(
-                    {"error": "Token is not valid, please request a new one"},
-                    status=HTTP_401_UNAUTHORIZED
+                    {"error": "Invalid or expired reset link"},
+                    status=HTTP_400_BAD_REQUEST
                 )
 
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
