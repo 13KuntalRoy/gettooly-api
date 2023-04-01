@@ -40,6 +40,7 @@ urlpatterns = [
     path("api/", include("accounts.urls")),
     path("api/", include("servey_quiz_form.urls")),
     path("api-auth/", include("rest_framework.urls")),
+    path("api/payment/", include("payment.urls")),
     path('doc/', schema_view.with_ui('swagger',
         cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc',

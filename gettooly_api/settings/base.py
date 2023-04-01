@@ -49,7 +49,7 @@ THIRD_PARTY_APPS = [
     'corsheaders',
 
 ]
-LOCAL_AAPS = ["accounts","servey_quiz_form"]
+LOCAL_AAPS = ["accounts","servey_quiz_form","payment"]
 
 INSTALLED_APPS = THIRD_PARTY_APPS + LOCAL_AAPS+DJANGO_APPS
 
