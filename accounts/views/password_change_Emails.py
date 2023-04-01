@@ -1,7 +1,7 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.urls import reverse
 from django.utils.encoding import (
-    DjangoUnicodeDecodeError, smart_bytes, smart_str)
+    DjangoUnicodeDecodeError, smart_bytes, smart_str,force_text)
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework.generics import GenericAPIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,6 +12,8 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_401_UN
 from accounts.models import CustomUser
 from accounts.serializers import EmailResetPasswordSerializer, SetNewPasswordSerializer
 from accounts.utils import Util
+from rest_framework.views import APIView
+
 
 class EmailResetPassword(GenericAPIView):
     permission_classes = (AllowAny,)
@@ -76,7 +78,7 @@ class PasswordTokenCheckAPI(GenericAPIView):
                 status=HTTP_401_UNAUTHORIZED
             )
 
-class SetNewPasswordAPIView(GenericAPIView):
+class SetNewPasswordAPIView(APIView):
     permission_classes = (AllowAny,)
     serializer_class = SetNewPasswordSerializer
 
@@ -88,7 +90,7 @@ class SetNewPasswordAPIView(GenericAPIView):
             token = serializer.data.get("token")
 
             try:
-                id = smart_str(urlsafe_base64_decode(uidb64))
+                id = force_text(urlsafe_base64_decode(uidb64))
                 user = CustomUser.objects.get(id=id)
 
                 if not PasswordResetTokenGenerator().check_token(user, token):
@@ -110,7 +112,7 @@ class SetNewPasswordAPIView(GenericAPIView):
                     status=HTTP_200_OK
                 )
 
-            except (DjangoUnicodeDecodeError, CustomUser.DoesNotExist):
+            except (TypeError, ValueError, OverflowError, CustomUser.DoesNotExist, ValidationError):
                 return Response(
                     {"error": "Token is not valid, please request a new one"},
                     status=HTTP_401_UNAUTHORIZED
