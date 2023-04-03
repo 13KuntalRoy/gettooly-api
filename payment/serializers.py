@@ -37,7 +37,7 @@ class PaymentIntentSerializer(serializers.Serializer):
         customer = stripe.Customer.objects.get(user=user.stripe_customer_id)
 
         # Calculate the end date of the subscription
-        end_date = datetime.now() + timedelta(days=30*duration)
+        end_date = datetime.now() + datetime.timedelta(days=30*duration)
 
         # Create a new subscription for the customer
         subscription = stripe.Subscription.create(
