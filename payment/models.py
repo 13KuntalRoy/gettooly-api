@@ -1,4 +1,4 @@
-import datetime
+from django.utils import timezone
 
 from django.db import models
 
@@ -12,6 +12,7 @@ class Subscription(models.Model):
     amount = models.IntegerField()
     stripe_subscription_id = models.CharField(max_length=40, blank=True)
     active = models.BooleanField(default=True)
+    expires_at = models.DateTimeField(default=timezone.now() + timezone.timedelta(days=30))
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
