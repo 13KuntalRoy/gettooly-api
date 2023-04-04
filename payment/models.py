@@ -8,7 +8,7 @@ class Subscription(models.Model):
     user = models.ForeignKey(
     ConductUser, on_delete=models.CASCADE, related_name="subscriptions"
     )
-    plan = models.CharField(max_length=20)
+    plan = models.CharField(max_length=100)
     amount = models.IntegerField()
     stripe_subscription_id = models.CharField(max_length=40, blank=True)
     active = models.BooleanField(default=True)
