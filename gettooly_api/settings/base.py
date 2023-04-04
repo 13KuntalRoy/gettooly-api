@@ -207,6 +207,7 @@ MEDIA_ROOT = str(ROOT_DIR / 'mediafiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
 CORS_URLS_REGEX = r'^/api/.*$'
 
 

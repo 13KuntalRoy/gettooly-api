@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -10,6 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from payment.models import Subscription
 from payment.serializers import SubscriptionSerializer
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
 class SubscriptionList(ListAPIView):
     serializer_class = SubscriptionSerializer
 
@@ -93,10 +96,18 @@ class CreateOneMonthSubscriptionView(CreateAPIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+
 class PaymentIntentView(APIView):
     permission_classes = (IsAuthenticated,)
+    serializer_class = PaymentIntentSerializer
+    authentication_classes = [JWTAuthentication]
 
     def post(self, request):
-        serializer = PaymentIntentSerializer(data=request.data)
+        serializer = PaymentIntentSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        return Response(serializer.validated_data)
+        subscription = serializer.save()
+        data = {
+            'message': 'Subscription created successfully!',
+            'subscription_id': subscription.stripe_subscription_id
+        }
+        return Response(data, status=201)

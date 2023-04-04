@@ -23,6 +23,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     state = models.CharField(max_length=50)
     city = models.CharField(max_length=100)
     pin = models.PositiveIntegerField(null=True)
+    stripe_customer_id = models.CharField(max_length=50, blank=True, default="")
 
     is_email_verified = models.BooleanField(default=False)
     is_phone_verified = models.BooleanField(default=False)
