@@ -26,7 +26,7 @@ class PaymentIntentSerializer(serializers.Serializer):
     payment_method_type = serializers.CharField()
 
     def create(self, validated_data):
-        stripe.api_key="sk_test_51LKc43SJstE3ZNVN1qUjmXNFy1ieonJnEQV4r8JZcZIhBu9IU8K7CweoKSEmwvuPOumeeWdgQxI06cWYq1YDGlj700YkcQHgd9"
+        stripe.api_key = "sk_test_51LKc43SJstE3ZNVN1qUjmXNFy1ieonJnEQV4r8JZcZIhBu9IU8K7CweoKSEmwvuPOumeeWdgQxI06cWYq1YDGlj700YkcQHgd9"
         amount = validated_data["amount"]
         plan = validated_data["plan"]
         duration = validated_data["duration"]
@@ -39,17 +39,17 @@ class PaymentIntentSerializer(serializers.Serializer):
             customer = stripe.Customer.retrieve(user.stripe_customer_id)
         except stripe.error.InvalidRequestError:
             # Create a new customer object for the user
-            customer = stripe.Customer.create(
-                email=user.email,
-                description=f"Customer for {user.username}"
-            )
+            customer = stripe.Customer.create(email=user.email)
             user.stripe_customer_id = customer.id
             user.save()
 
         # Attach the payment method to the customer if not already attached
-        if payment_method_id not in customer.invoice_settings.default_payment_method:
-            payment_method = stripe.PaymentMethod.retrieve(payment_method_id)
-            payment_method.attach(customer=customer.id)
+        payment_methods = stripe.PaymentMethod.list(
+            customer=customer.id,
+            type=payment_method_type,
+        )
+        if payment_method_id not in [pm.id for pm in payment_methods]:
+            payment_method = stripe.PaymentMethod.attach(payment_method_id, customer=customer.id)
 
         # Calculate the end date of the subscription
         end_date = timezone.now() + timedelta(days=30 * duration)
