@@ -45,13 +45,12 @@ class PaymentIntentSerializer(serializers.Serializer):
             )
             user.stripe_customer_id = customer.id
             user.save()
-                # Attach the payment method to the customer
-        payment_method_id = validated_data["payment_method_id"]
-        try:
+
+        # Attach the payment method to the customer if not already attached
+        if payment_method_id not in customer.invoice_settings.default_payment_method:
             payment_method = stripe.PaymentMethod.retrieve(payment_method_id)
             payment_method.attach(customer=customer.id)
-        except stripe.error.InvalidRequestError:
-            raise serializers.ValidationError("Failed to attach payment method to customer")
+
         # Calculate the end date of the subscription
         end_date = timezone.now() + timedelta(days=30 * duration)
 
