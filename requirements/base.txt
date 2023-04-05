@@ -4,8 +4,9 @@ djangorestframework==3.14.0
 django-cors-headers==3.14.0
 django-allauth==0.13.0
 django-rest-auth==0.9.5
+phonenumbers==8.13.8
 django-phonenumber-field==7.0.2
 pillow==8.4.0
 djangorestframework-simplejwt==5.0.0
-stripe==2.65.0
+stripe==5.4.0
 drf-yasg==1.21.5

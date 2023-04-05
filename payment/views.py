@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from accounts.models import ConductUser
 from payment.models import Subscription
 from payment.serializers import SubscriptionSerializer, PaymentIntentSerializer
 import stripe
@@ -12,7 +13,9 @@ from rest_framework.response import Response
 from payment.models import Subscription
 from payment.serializers import SubscriptionSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
-
+from django.utils import timezone
+from datetime import datetime, timedelta
+stripe.api_key = "sk_test_51LKc43SJstE3ZNVN1qUjmXNFy1ieonJnEQV4r8JZcZIhBu9IU8K7CweoKSEmwvuPOumeeWdgQxI06cWYq1YDGlj700YkcQHgd9"
 class SubscriptionList(ListAPIView):
     serializer_class = SubscriptionSerializer
 
@@ -96,18 +99,179 @@ class CreateOneMonthSubscriptionView(CreateAPIView):
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+# class PaymentIntentView(APIView):
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = (JWTAuthentication,)
+
+#     def post(self, request):
+#         request_data = request.data
+#         serializer = PaymentIntentSerializer(data=request_data)
+#         serializer.is_valid(raise_exception=True)
+
+#         validated_data = serializer.validated_data
+#         amount = validated_data["amount"]
+#         plan = validated_data["plan"]
+#         duration = validated_data["duration"]
+#         payment_method_id = validated_data["payment_method_id"]
+#         payment_method_type = validated_data["payment_method_type"]
+
+#         # Get the customer object for the logged in user
+#         user = self.request.user
+#         try:
+#             customer = stripe.Customer.retrieve(user.stripe_customer_id)
+#         except stripe.error.InvalidRequestError:
+#             # Create a new customer object for the user
+#             customer = stripe.Customer.create(email=user.email)
+#             user.stripe_customer_id = customer.id
+#             user.save()
+
+#         # Attach the payment method to the customer if not already attached
+#         payment_methods = stripe.PaymentMethod.list(
+#             customer=customer.id,
+#             type=payment_method_type,
+#         )
+#         if payment_method_id not in [pm.id for pm in payment_methods.data]:
+#             payment_method = stripe.PaymentMethod.attach(payment_method_id, customer=customer.id)
+
+#         # Calculate the end date of the subscription
+#         end_date = timezone.now() + timedelta(days=30 * duration)
+
+#         # Create a new subscription for the customer
+#         subscription = stripe.Subscription.create(
+#             customer=customer.id,
+#             items=[{
+#                 "price": plan
+#             }],
+#             default_payment_method=payment_method_id,
+#             expand=["latest_invoice.payment_intent"],
+#             trial_end=int(end_date.timestamp())
+#         )
+
+#         # Create a new payment intent for the subscription
+#         payment_intent = stripe.PaymentIntent.create(
+#             payment_method=payment_method_id,
+#             customer=customer.id,
+#             amount=amount,
+#             currency="usd",
+#             payment_method_types=[payment_method_type],
+#             description="Payment for subscription to plan " + plan,
+#             confirm=True,
+#             receipt_email=customer.email,
+#             metadata={'plan': plan},
+#         )
+
+#         # Get the payment intent object
+#         payment_intent = stripe.PaymentIntent.retrieve(payment_intent.id)
+
+#         # Update the subscription status based on the payment intent status
+#         if payment_intent.status == "succeeded":
+#             subscription = stripe.Subscription.retrieve(subscription.id)
+#             subscription.save()
+#         else:
+#             subscription = stripe.Subscription.retrieve(subscription.id)
+#             subscription.save()
+
+#         # Create a new Subscription object
+#         conduct_user = ConductUser.objects.get(email=user.email)
+#         subscription_obj = Subscription.objects.create(
+#             user=conduct_user,
+#             plan=plan,
+#             amount=amount,
+#             stripe_subscription_id=subscription.id,
+#             active=True,
+#             expires_at=end_date
+#         )
+
+#         return Response({'subscription_id': subscription_obj.id}, status=status.HTTP_201_CREATED)
 
 class PaymentIntentView(APIView):
-    permission_classes = (IsAuthenticated,)
-    serializer_class = PaymentIntentSerializer
-    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JWTAuthentication,)
 
     def post(self, request):
-        serializer = PaymentIntentSerializer(data=request.data, context={'request': request})
+        request_data = request.data
+        serializer = PaymentIntentSerializer(data=request_data)
         serializer.is_valid(raise_exception=True)
-        subscription = serializer.save()
-        data = {
-            'message': 'Subscription created successfully!',
-            'subscription_id': subscription.stripe_subscription_id
-        }
-        return Response(data, status=201)
+
+        validated_data = serializer.validated_data
+        amount = validated_data["amount"]
+        plan = validated_data["plan"]
+        duration = validated_data["duration"]
+        payment_method_id = validated_data["payment_method_id"]
+        payment_method_type = validated_data["payment_method_type"]
+
+        # Get the customer object for the logged in user
+        user = self.request.user
+        try:
+            customer = stripe.Customer.retrieve(user.stripe_customer_id)
+        except stripe.error.InvalidRequestError:
+            # Create a new customer object for the user
+            customer = stripe.Customer.create(email=user.email)
+            user.stripe_customer_id = customer.id
+            user.save()
+
+        # Attach the payment method to the customer if not already attached
+        payment_methods = stripe.PaymentMethod.list(
+            customer=customer.id,
+            type=payment_method_type,
+        )
+        if payment_method_id not in [pm.id for pm in payment_methods.data]:
+            payment_method = stripe.PaymentMethod.attach(payment_method_id, customer=customer.id)
+
+        # Calculate the end date of the subscription
+        end_date = timezone.now() + timedelta(days=30 * duration)
+
+        # Create a new subscription for the customer
+        subscription = stripe.Subscription.create(
+            customer=customer.id,
+            items=[{
+                "price": plan
+            }],
+            default_payment_method=payment_method_id,
+            expand=["latest_invoice.payment_intent"],
+            trial_end=int(end_date.timestamp())
+        )
+
+        # Create a new payment intent for the subscription
+        payment_intent = stripe.PaymentIntent.create(
+            payment_method=payment_method_id,
+            customer=customer.id,
+            amount=amount,
+            currency="usd",
+            payment_method_types=[payment_method_type],
+            description="Payment for subscription to plan " + plan,
+            confirm=True,
+            receipt_email=customer.email,
+            metadata={'plan': plan},
+        )
+
+        # Get the payment intent object
+        payment_intent = stripe.PaymentIntent.retrieve(payment_intent.id)
+
+        # Handle requires_action status
+        if payment_intent.status == "requires_action":
+            # Send client_secret to client to handle authentication
+            return Response({'client_secret': payment_intent.client_secret})
+
+        # Update the subscription status based on the payment intent status
+        if payment_intent.status == "succeeded":
+            subscription = stripe.Subscription.retrieve(subscription.id)
+            subscription.save()
+        else:
+            subscription = stripe.Subscription.retrieve(subscription.id)
+            subscription.save()
+
+        # Create a new Subscription object
+        conduct_user = ConductUser.objects.get(email=user.email)
+        subscription_obj = Subscription.objects.create(
+            user=conduct_user,
+            plan=plan,
+            amount=amount,
+            stripe_subscription_id=subscription.id,
+            active=True,
+            expires_at=end_date
+        )
+
+        return Response({'subscription_id': subscription_obj.id}, status=status.HTTP_201_CREATED)
+
+
