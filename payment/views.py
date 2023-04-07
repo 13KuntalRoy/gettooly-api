@@ -16,15 +16,20 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.utils import timezone
 from datetime import datetime, timedelta
 stripe.api_key = "sk_test_51LKc43SJstE3ZNVN1qUjmXNFy1ieonJnEQV4r8JZcZIhBu9IU8K7CweoKSEmwvuPOumeeWdgQxI06cWYq1YDGlj700YkcQHgd9"
+
+
 class SubscriptionList(ListAPIView):
     serializer_class = SubscriptionSerializer
 
     def get_queryset(self):
         user = self.request.user
         return Subscription.objects.filter(user=user)
+
+
 class SubscriptionDetail(RetrieveAPIView):
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
+
 
 @api_view(["POST"])
 def create_subscription(request):
@@ -33,6 +38,7 @@ def create_subscription(request):
     subscription = serializer.save()
     serializer = SubscriptionSerializer(subscription)
     return Response(serializer.data)
+
 
 @api_view(["POST"])
 def cancel_subscription(request, subscription_id):
@@ -53,6 +59,8 @@ def cancel_subscription(request, subscription_id):
 
     serializer = SubscriptionSerializer(subscription)
     return Response(serializer.data)
+
+
 class CreateOneMonthSubscriptionView(CreateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = PaymentIntentSerializer
@@ -73,7 +81,7 @@ class CreateOneMonthSubscriptionView(CreateAPIView):
             }],
             default_payment_method=serializer.validated_data["payment_method_id"],
             expand=["latest_invoice.payment_intent"],
-            trial_period_days=30, # set the subscription to last for one month
+            trial_period_days=30,  # set the subscription to last for one month
         )
 
         # Create a new payment intent for the subscription
@@ -184,6 +192,7 @@ class CreateOneMonthSubscriptionView(CreateAPIView):
 
 #         return Response({'subscription_id': subscription_obj.id}, status=status.HTTP_201_CREATED)
 
+
 class PaymentIntentView(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = (JWTAuthentication,)
@@ -206,7 +215,17 @@ class PaymentIntentView(APIView):
             customer = stripe.Customer.retrieve(user.stripe_customer_id)
         except stripe.error.InvalidRequestError:
             # Create a new customer object for the user
-            customer = stripe.Customer.create(email=user.email)
+            customer = stripe.Customer.create(
+                email=user.email,
+                name="Jenny Rosen",
+                address={
+                    "line1": "510 Townsend St",
+                    "postal_code": "98140",
+                    "city": "San Francisco",cd 
+                    "state": "CA",
+                    "country": "US",
+                },
+            )
             user.stripe_customer_id = customer.id
             user.save()
 
@@ -242,7 +261,7 @@ class PaymentIntentView(APIView):
             description="Payment for subscription to plan " + plan,
             confirm=True,
             receipt_email=customer.email,
-            metadata={'plan': plan},
+            metadata={'plan': plan, }
         )
 
         # Get the payment intent object
@@ -252,26 +271,16 @@ class PaymentIntentView(APIView):
         if payment_intent.status == "requires_action":
             # Send client_secret to client to handle authentication
             return Response({'client_secret': payment_intent.client_secret})
-
-        # Update the subscription status based on the payment intent status
         if payment_intent.status == "succeeded":
-            subscription = stripe.Subscription.retrieve(subscription.id)
-            subscription.save()
+                    conduct_user = ConductUser.objects.get(email=user.email)
+                    subscription_obj = Subscription.objects.create(
+                        user=conduct_user,
+                        plan=plan,
+                        amount=amount,
+                        stripe_subscription_id=subscription.id,
+                        active=True,
+                        expires_at=end_date,
+                    )
+                    return Response({"subscription_id": subscription_obj.id}, status=status.HTTP_201_CREATED)
         else:
-            subscription = stripe.Subscription.retrieve(subscription.id)
-            subscription.save()
-
-        # Create a new Subscription object
-        conduct_user = ConductUser.objects.get(email=user.email)
-        subscription_obj = Subscription.objects.create(
-            user=conduct_user,
-            plan=plan,
-            amount=amount,
-            stripe_subscription_id=subscription.id,
-            active=True,
-            expires_at=end_date
-        )
-
-        return Response({'subscription_id': subscription_obj.id}, status=status.HTTP_201_CREATED)
-
-
+            return Response({"error": "Payment fail"}, status=status.HTTP_400_BAD_REQUEST)
