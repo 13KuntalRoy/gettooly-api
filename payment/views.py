@@ -317,7 +317,7 @@ class HandlePaymentView(APIView):
                 amount=payment_intent.amount,
                 stripe_subscription_id=subscription.id,
                 active=True,
-                expires_at=subscription.trial_end,
+                expires_at=timezone.datetime.fromtimestamp(subscription.trial_end),
             )
             return Response({"subscription_id": subscription_obj.id}, status=status.HTTP_201_CREATED)
         else:
