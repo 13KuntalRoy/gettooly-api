@@ -110,3 +110,4 @@ class PaymentIntentSerializer(serializers.Serializer):
 
 class HandelIntentSerializer(serializers.Serializer):
     payment_intent_id = serializers.CharField(max_length=200)
+    stripe_subscription_id = serializers.CharField(max_length=200)

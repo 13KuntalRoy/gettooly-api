@@ -270,7 +270,7 @@ class PaymentIntentView(APIView):
         # Handle requires_action status
         if payment_intent.status == "requires_action":
             # Send client_secret to client to handle authentication
-            return Response({'client_secret': payment_intent.client_secret})
+            return Response({'client_secret': payment_intent.client_secret,'subscription_id': subscription.id}, status=status.HTTP_200_OK)
         if payment_intent.status == "succeeded":
                     conduct_user = ConductUser.objects.get(email=user.email)
                     subscription_obj = Subscription.objects.create(
@@ -296,10 +296,13 @@ class HandlePaymentView(APIView):
 
         validated_data = serializer.validated_data
         payment_intent_id = validated_data["payment_intent_id"]
+        subscription_id = validated_data["subscription_id"]
         
         if not payment_intent_id:
             return Response({"error": "Payment intent ID not provided."}, status=status.HTTP_400_BAD_REQUEST)
-
+        user = self.request.user
+        subscription = stripe.Subscription.retrieve(subscription_id)
+        
         # Retrieve the payment intent object
         payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
 
@@ -312,7 +315,7 @@ class HandlePaymentView(APIView):
                 user=conduct_user,
                 plan=payment_intent.metadata.plan,
                 amount=payment_intent.amount,
-                stripe_subscription_id=payment_intent.subscription,
+                stripe_subscription_id=subscription.id,
                 active=True,
                 expires_at=timezone.datetime.fromtimestamp(payment_intent.trial_end),
             )
