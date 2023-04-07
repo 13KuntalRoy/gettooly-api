@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from accounts.models import ConductUser
 from payment.models import Subscription
-from payment.serializers import SubscriptionSerializer, PaymentIntentSerializer
+from payment.serializers import HandelIntentSerializer, SubscriptionSerializer, PaymentIntentSerializer
 import stripe
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
@@ -221,7 +221,7 @@ class PaymentIntentView(APIView):
                 address={
                     "line1": "510 Townsend St",
                     "postal_code": "98140",
-                    "city": "San Francisco",cd 
+                    "city": "San Francisco",
                     "state": "CA",
                     "country": "US",
                 },
@@ -284,3 +284,39 @@ class PaymentIntentView(APIView):
                     return Response({"subscription_id": subscription_obj.id}, status=status.HTTP_201_CREATED)
         else:
             return Response({"error": "Payment fail"}, status=status.HTTP_400_BAD_REQUEST)
+
+class HandlePaymentView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JWTAuthentication,)
+
+    def post(self, request):
+        request_data = request.data
+        serializer = HandelIntentSerializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+
+        validated_data = serializer.validated_data
+        payment_intent_id = validated_data["payment_intent_id"]
+        
+        if not payment_intent_id:
+            return Response({"error": "Payment intent ID not provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Retrieve the payment intent object
+        payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
+
+        # Check the status of the payment intent
+        if payment_intent.status == "succeeded":
+            # Payment was successful, handle it accordingly
+            user = self.request.user
+            conduct_user = ConductUser.objects.get(email=user.email)
+            subscription_obj = Subscription.objects.create(
+                user=conduct_user,
+                plan=payment_intent.metadata.plan,
+                amount=payment_intent.amount,
+                stripe_subscription_id=payment_intent.subscription,
+                active=True,
+                expires_at=timezone.datetime.fromtimestamp(payment_intent.trial_end),
+            )
+            return Response({"subscription_id": subscription_obj.id}, status=status.HTTP_201_CREATED)
+        else:
+            # Payment failed, handle it accordingly
+            return Response({"error": "Payment failed"}, status=status.HTTP_400_BAD_REQUEST)

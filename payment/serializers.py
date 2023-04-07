@@ -108,3 +108,5 @@ class PaymentIntentSerializer(serializers.Serializer):
     payment_method_id = serializers.CharField()
     payment_method_type = serializers.CharField()
 
+class HandelIntentSerializer(serializers.Serializer):
+    payment_intent_id = serializers.CharField(max_length=200)
