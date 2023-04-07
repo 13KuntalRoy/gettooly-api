@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from payment.models import Choices,Questions,Answer,Form,Responses
+from servey_quiz_form.models import Choices,Questions,Answer,Form,Responses
 
 
 admin.site.register(Choices)
