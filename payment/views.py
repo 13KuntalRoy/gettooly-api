@@ -296,7 +296,7 @@ class HandlePaymentView(APIView):
 
         validated_data = serializer.validated_data
         payment_intent_id = validated_data["payment_intent_id"]
-        subscription_id = validated_data["subscription_id"]
+        subscription_id = validated_data["stripe_subscription_id"]
         
         if not payment_intent_id:
             return Response({"error": "Payment intent ID not provided."}, status=status.HTTP_400_BAD_REQUEST)
