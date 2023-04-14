@@ -15,6 +15,8 @@ from payment.serializers import SubscriptionSerializer
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.utils import timezone
 from datetime import datetime, timedelta
+from django.core.mail import send_mail
+
 stripe.api_key = "sk_test_51LKc43SJstE3ZNVN1qUjmXNFy1ieonJnEQV4r8JZcZIhBu9IU8K7CweoKSEmwvuPOumeeWdgQxI06cWYq1YDGlj700YkcQHgd9"
 
 
@@ -281,9 +283,24 @@ class PaymentIntentView(APIView):
                         active=True,
                         expires_at=end_date,
                     )
+                    send_mail(
+                        'Payment Successful',
+                        'Your payment has been successfully processed.',
+                        'from@example.com',
+                        [user.email],
+                        fail_silently=False,
+                    )
                     return Response({"subscription_id": subscription_obj.id}, status=status.HTTP_201_CREATED)
         else:
+            send_mail(
+                'Payment Failed',
+                'Your payment has failed to process.',
+                'from@example.com',
+                [user.email],
+                fail_silently=False,
+            )
             return Response({"error": "Payment fail"}, status=status.HTTP_400_BAD_REQUEST)
+        
 
 class HandlePaymentView(APIView):
     permission_classes = [IsAuthenticated]
@@ -319,7 +336,23 @@ class HandlePaymentView(APIView):
                 active=True,
                 expires_at=timezone.datetime.fromtimestamp(subscription.trial_end),
             )
+
+            # Send success email
+            send_mail(
+                'Payment Successful',
+                'Your payment has been successfully processed.',
+                'from@example.com',
+                [user.email],
+                fail_silently=False,
+            )
             return Response({"subscription_id": subscription_obj.id}, status=status.HTTP_201_CREATED)
         else:
+            send_mail(
+                'Payment Failed',
+                'Your payment has failed to process.',
+                'from@example.com',
+                [user.email],
+                fail_silently=False,
+            )
             # Payment failed, handle it accordingly
             return Response({"error": "Payment failed"}, status=status.HTTP_400_BAD_REQUEST)
