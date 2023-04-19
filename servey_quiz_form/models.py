@@ -1,7 +1,7 @@
 import random
 import string
 from django.db import models
-from accounts.models import UserQuiz,ConductUser
+from accounts.models import UserQuiz,ConductUser,CustomUser
 
 
 class Choices(models.Model):
@@ -24,6 +24,8 @@ class Questions(models.Model):
 class Answer(models.Model):
     answer = models.CharField(max_length=5000)
     answer_to = models.ForeignKey(Questions, on_delete = models.CASCADE ,related_name = "answer_to")
+    def __str__(self):
+        return self.answer
 
 class Form(models.Model):
     code = models.CharField(max_length=30,unique=''.join(random.choice(string.ascii_letters + string.digits) for x in range(30)))
@@ -41,13 +43,21 @@ class Form(models.Model):
     createdAt = models.DateTimeField(auto_now_add = True)
     updatedAt = models.DateTimeField(auto_now = True)
     questions = models.ManyToManyField(Questions, related_name = "questions")
+    def __str__(self):
+        return self.code
 
 class Responses(models.Model):
     response_code = models.CharField(max_length=20)
     response_to = models.ForeignKey(Form, on_delete = models.CASCADE, related_name = "response_to")
     responder_ip = models.CharField(max_length=30)
     responder = models.ForeignKey(UserQuiz, on_delete = models.CASCADE, related_name = "responder", blank = True, null = True)
-    responder_email = models.EmailField(blank = True)
+    responder_email = models.EmailField(blank = True, null = True)
     response = models.ManyToManyField(Answer, related_name = "response")
+    def save(self, *args, **kwargs):
+        super(Responses, self).save(*args, **kwargs)
+        if self.response.exists():
+            self.response.set(self.response.all())
+    def __str__(self):
+        return self.response_code
 
 

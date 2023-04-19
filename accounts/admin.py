@@ -26,7 +26,7 @@ class UserQuizAdmin(UserAdmin):
          "is_email_verified", "is_phone_verified",)}),
         ("Address", {"fields": ("country", "state", "city", "pin",)}),
         ("Details", {"fields": ("first_name", "last_name",
-         "gender", "coins", "DOB", "profile_photo",)}),
+         "gender","DOB", "profile_photo",)}),
     )
     readonly_fields = (
         "id",
@@ -41,7 +41,6 @@ class UserQuizAdmin(UserAdmin):
                     "first_name",
                     "last_name",
                     "gender",
-                    "coins",
                     "DOB",
                     "email",
                     "password1",

@@ -1,12 +1,17 @@
 from django.urls import include, path
+from servey_quiz_form.views.GetClientIPView import GetClientIPView
 from servey_quiz_form.views.addquestion import CreateQuestionAPIView
 from servey_quiz_form.views.answerkey import AnswerKeyView
 
 from servey_quiz_form.views.createfrom import CreateForm
 from servey_quiz_form.views.deletechoice import RemoveChoiceAPIView
 from servey_quiz_form.views.deletequestion import DeleteQuestionView
-from servey_quiz_form.views.editresponseview import DeleteResponseAPIView, FormResponseEditAPIView
+from servey_quiz_form.views.delres import DeleteResponses
+from servey_quiz_form.views.editres import edit_response
+from servey_quiz_form.views.feedback import FeedbackView
 from servey_quiz_form.views.formview import FormView
+from servey_quiz_form.views.response import ResponseView
+from servey_quiz_form.views.responses import Responses
 from servey_quiz_form.views.responsesview import ResponseViewSet, ResponsesAPI
 from servey_quiz_form.views.score import EditScoreView
 from servey_quiz_form.views.updatetitle import UpdateTitle
@@ -42,8 +47,12 @@ urlpatterns = [
     path('forms/<str:code>/answer-key/', AnswerKeyView.as_view(), name='answer_key'),
     path('edit_score/<str:code>/', EditScoreView.as_view(), name='edit_score'),
     path('responses/<pk>/' , ResponsesAPI.as_view()),
-    path('form/<str:code>/response/<str:response_code>/edit/', FormResponseEditAPIView.as_view(), name='form-response-edit'),
-    path('form/<str:code>/responses/delete', DeleteResponseAPIView.as_view(), name='delete_responses'),
+    path('form/<str:code>/responses', Responses.as_view(), name='responses'),
+    path('form/<str:code>/response/<str:response_code>/', ResponseView.as_view(), name='response_view'),
+    path('form/<str:code>/<str:response_code>/edit-response', edit_response.as_view(), name='edit-response'),
+    path('feedback/<str:code>/', FeedbackView.as_view(), name='feedback'),
+    path('form/<str:code>/responses/delete', DeleteResponses.as_view(), name="delete_responses"),
+    path('get-client-ip/', GetClientIPView.as_view(), name='get_client_ip'),
     path('' , include(router.urls)),
 
 

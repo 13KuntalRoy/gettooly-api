@@ -1,6 +1,7 @@
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from accounts.models import UserQuiz
 from servey_quiz_form.models import Form, Questions , Responses , Answer
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -19,7 +20,7 @@ class ResponseViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def store_responses(self, request):
-        # try:
+        try:
             data = request.data
 
             if data.get('form_id') is None or data.get('responses') is None:
@@ -32,8 +33,12 @@ class ResponseViewSet(viewsets.ModelViewSet):
             responses = data.get('responses')
             response_obj = Responses.objects.create(
                 response_code = generate_random_string(15),
-                response_to = Form.objects.get(id = data.get('form_id'))
+                response_to = Form.objects.get(id = data.get('form_id')),
+                responder_ip=data.get('responder_ip'),
+                responder_email=data.get('responder_email'),
+                responder=UserQuiz.objects.get(id=self.request.user.id)
             )
+
 
             for response in responses:
                 print(response)
@@ -54,11 +59,11 @@ class ResponseViewSet(viewsets.ModelViewSet):
                     
                     response_obj.response.add(answer_obj)
 
-            return Response({'status' : True ,'message' : 'response captured' , 'data' : {}})
+            return Response({'status' : True ,'message' : 'response captured' , 'data' : {"response_code" :response_obj.response_code}})
 
-        # except Exception as e:
-        #     print(e)
-        #     return Response({'status' : False ,'message' : 'something went wrong' , 'data' : {}})
+        except Exception as e:
+            print(e)
+            return Response({'status' : False ,'message' : 'something went wrong' , 'data' : {}})
 class ResponsesAPI(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = (JWTAuthentication,)
