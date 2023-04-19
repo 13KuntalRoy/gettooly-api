@@ -9,6 +9,7 @@ from servey_quiz_form.views.deletequestion import DeleteQuestionView
 from servey_quiz_form.views.delres import DeleteResponses
 from servey_quiz_form.views.editres import edit_response
 from servey_quiz_form.views.feedback import FeedbackView
+from servey_quiz_form.views.formlist import UserFormListView
 from servey_quiz_form.views.formview import FormView
 from servey_quiz_form.views.response import ResponseView
 from servey_quiz_form.views.responses import Responses
@@ -53,6 +54,7 @@ urlpatterns = [
     path('feedback/<str:code>/', FeedbackView.as_view(), name='feedback'),
     path('form/<str:code>/responses/delete', DeleteResponses.as_view(), name="delete_responses"),
     path('get-client-ip/', GetClientIPView.as_view(), name='get_client_ip'),
+    path('user/<int:user_id>/forms/', UserFormListView.as_view(), name='user-form-list'),
     path('' , include(router.urls)),
 
 
