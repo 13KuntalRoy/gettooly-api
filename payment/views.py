@@ -212,7 +212,8 @@ class PaymentIntentView(APIView):
         payment_method_type = validated_data["payment_method_type"]
 
         # Get the customer object for the logged in user
-        user = self.request.user
+        # user = self.request.user
+        user=ConductUser.objects.get(id=self.request.user.id)
         try:
             customer = stripe.Customer.retrieve(user.stripe_customer_id)
         except stripe.error.InvalidRequestError:

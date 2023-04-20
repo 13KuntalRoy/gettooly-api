@@ -23,7 +23,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     state = models.CharField(max_length=50)
     city = models.CharField(max_length=100)
     pin = models.PositiveIntegerField(null=True)
-    stripe_customer_id = models.CharField(max_length=50, blank=True, default="")
+    # stripe_customer_id = models.CharField(max_length=50, blank=True, default="")
 
     is_email_verified = models.BooleanField(default=False)
     is_phone_verified = models.BooleanField(default=False)
@@ -48,7 +48,9 @@ class ConductUser(CustomUser):
     name = models.CharField(max_length=30)
     profile_photo = models.ImageField(
         upload_to="media/images", null=True, default=""
+    
     )
+    stripe_customer_id = models.CharField(max_length=50, blank=True, default="")
 
 
     def __str__(self):

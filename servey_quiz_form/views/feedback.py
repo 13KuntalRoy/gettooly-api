@@ -17,7 +17,7 @@ class FeedbackView(APIView):
         if not form_info:
             return Response({'error': 'Form not found.'}, status=status.HTTP_404_NOT_FOUND)
         # Checking if form creator is user
-        if form_info.creator != request.user.id:
+        if form_info.creator.id != request.user.id:
             return Response({'error': 'Permission denied.'}, status=status.HTTP_403_FORBIDDEN)
         if not form_info.is_quiz:
             return Response({'error': 'Invalid operation.'}, status=status.HTTP_400_BAD_REQUEST)

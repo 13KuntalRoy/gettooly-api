@@ -55,6 +55,7 @@ urlpatterns = [
     path('form/<str:code>/responses/delete', DeleteResponses.as_view(), name="delete_responses"),
     path('get-client-ip/', GetClientIPView.as_view(), name='get_client_ip'),
     path('user/<int:user_id>/forms/', UserFormListView.as_view(), name='user-form-list'),
+    
     path('' , include(router.urls)),
 
 
