@@ -112,7 +112,7 @@ class UserRegisterSerializer(ModelSerializer):
 
 class ConductUserRegisterSerializer(ModelSerializer):
     email = EmailField(
-        required=True, validators=[UniqueValidator(queryset=UserQuiz.objects.all(), message="This email address is already in use.")]
+        required=True, validators=[UniqueValidator(queryset=ConductUser.objects.all(), message="This email address is already in use.")]
     )
 
     password = CharField(write_only=True, required=True,
