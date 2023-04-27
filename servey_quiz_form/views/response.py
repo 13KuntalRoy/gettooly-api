@@ -51,7 +51,7 @@ class ResponseView(generics.RetrieveAPIView):
                     answers = []
                     answer_keys = []
                     for other_response in responseInfo.response.filter(answer_to__pk=response.answer_to.pk):
-                        answers.append(int(other_response.answer))
+                        answers.append(str(other_response.answer))
                         for choice in other_response.answer_to.choices.all():
                             if choice.is_answer and choice.pk not in answer_keys:
                                 answer_keys.append(choice.pk)
