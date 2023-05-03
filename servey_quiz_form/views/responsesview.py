@@ -18,6 +18,52 @@ class ResponseViewSet(viewsets.ModelViewSet):
     queryset = Responses.objects.all()
     serializer_class = ResponsesSerializer
 
+    # @action(detail=False, methods=['post'])
+    # def store_responses(self, request):
+    #     try:
+    #         data = request.data
+
+    #         if data.get('form_id') is None or data.get('responses') is None:
+    #                 return Response(
+    #                     {
+    #                     'status' : False ,
+    #                     'message' : 'form_id and responses both are required',
+    #                     'data' : {}})
+
+    #         responses = data.get('responses')
+    #         response_obj = Responses.objects.create(
+    #             response_code = generate_random_string(15),
+    #             response_to = Form.objects.get(id = data.get('form_id')),
+    #             responder_ip=data.get('responder_ip'),
+    #             responder_email=data.get('responder_email'),
+    #             responder=UserQuiz.objects.get(id=self.request.user.id)
+    #         )
+
+
+    #         for response in responses:
+    #             print(response)
+    #             question_obj = Questions.objects.get(id = response['question'])
+    #             if question_obj.question_type == 'checkbox':
+    #                 for answer in response['answer']:
+    #                     answer_obj = Answer.objects.create(
+    #                             answer = answer,
+    #                             answer_to = question_obj
+    #                     )
+    #                 response_obj.response.add(answer_obj)
+
+    #             else:
+    #                 answer_obj = Answer.objects.create(
+    #                             answer = response['answer'],
+    #                             answer_to = question_obj
+    #                     )
+                    
+    #                 response_obj.response.add(answer_obj)
+
+    #         return Response({'status' : True ,'message' : 'response captured' , 'data' : {"response_code" :response_obj.response_code}})
+
+    #     except Exception as e:
+    #         print(e)
+    #         return Response({'status' : False ,'message' : 'something went wrong' , 'data' : {}})
     @action(detail=False, methods=['post'])
     def store_responses(self, request):
         try:
@@ -49,8 +95,7 @@ class ResponseViewSet(viewsets.ModelViewSet):
                                 answer = answer,
                                 answer_to = question_obj
                         )
-                    response_obj.response.add(answer_obj)
-
+                        response_obj.response.add(answer_obj)
                 else:
                     answer_obj = Answer.objects.create(
                                 answer = response['answer'],
@@ -64,6 +109,7 @@ class ResponseViewSet(viewsets.ModelViewSet):
         except Exception as e:
             print(e)
             return Response({'status' : False ,'message' : 'something went wrong' , 'data' : {}})
+
 class ResponsesAPI(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = (JWTAuthentication,)
