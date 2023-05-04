@@ -110,77 +110,159 @@ class ResponseViewSet(viewsets.ModelViewSet):
             print(e)
             return Response({'status' : False ,'message' : 'something went wrong' , 'data' : {}})
 
+# class ResponsesAPI(APIView):
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = (JWTAuthentication,)
+#     def get(self , request , pk):
+#         try:
+#             print(request.user)
+#             formInfo = Form.objects.get(code = pk)
+#             self.check_object_permissions(request , formInfo)
+#             responsesSummary = []
+#             choiceAnswered = { }
+#             non_choices_answer = {}
+
+#             for question in formInfo.questions.all():
+#                 print("AAAAAAAAAAAAAAAAAA")
+#                 answers = Answer.objects.filter(answer_to = question.id)
+
+#                 if question.question_type == "multiple choice" or question.question_type == "checkbox":
+#                     choiceAnswered[question.question] = choiceAnswered.get(question.question ,{})
+
+
+#                     for choice in question.choices.all():
+#                         print("BBBBBBBBBBBBBBBBB")
+#                         choiceAnswered[question.question][choice.choice] = 0 
+
+
+#                     print(answers)
+#                     for answer in answers:
+#                         print("CCCCCCCCCCCCCCCCCCCC")
+#                         choice = answer.answer_to.choices.get(choice = answer.answer).choice
+#                         choiceAnswered[question.question][choice] = choiceAnswered.get(question.question , {}).get(choice ,0) + 1
+#                         print(choiceAnswered)
+#                     print("bokachoda")
+
+
+
+#                 else:
+#                     print("DDDDDDDDDDDDD")
+#                     for answer in answers:
+#                         print("EE")
+#                         if non_choices_answer.get(question.question):
+#                             non_choices_answer[question.question].append(answer.answer)
+#                         else:
+#                             non_choices_answer[question.question] = [answer.answer] 
+#                 print("RESSSSSSSSSSSSSSS")
+    
+#                 responsesSummary.append({'question' :question , 'answer' : answer})
+
+
+            
+#             final_list = []
+#             print("FFFFFFFFFFFFFFFFFFFFFUUUUCK")
+
+#             for answer in choiceAnswered:
+#                 print("FFFFFFF")
+#                 final_dict = {}
+#                 final_dict['question'] = answer
+#                 final_dict['answer'] = choiceAnswered[answer]
+
+#                 final_dict['chartData'] = {
+#                     'labels' : choiceAnswered[answer].keys(),
+#                     'datasets' : [
+#                         {'data' : choiceAnswered[answer].values()}
+#                     ]
+#                 }
+
+#                 final_dict['keys'] = choiceAnswered[answer].keys()
+#                 final_dict['values'] = choiceAnswered[answer].values()
+
+#                 final_list.append(final_dict)
+#                 print(final_list)
+
+
+#             return Response({
+#                 'status' : True,
+#                 'message' : 'success',
+#                 'data' : {'count' : Responses.objects.filter(response_to__code = pk).count(),'data' : final_list , 'non_choices_answer' : non_choices_answer}
+#             })
+
+#         except Exception as e:
+#             print(e)
+#             return Response({
+#                 'status': False,
+#                 'message' : 'something went wrong or you dont have permission to view this',
+#                 'data' : {}
+#             })
 class ResponsesAPI(APIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = (JWTAuthentication,)
-    def get(self , request , pk):
+
+    def get(self, request, pk):
         try:
-            print(request.user)
-            formInfo = Form.objects.get(code = pk)
-            self.check_object_permissions(request , formInfo)
-            responsesSummary = []
-            choiceAnswered = { }
+            form_info = Form.objects.get(code=pk)
+            self.check_object_permissions(request, form_info)
+            responses_summary = []
+            choice_answered = {}
             non_choices_answer = {}
 
-            for question in formInfo.questions.all():
-                answers = Answer.objects.filter(answer_to = question.id)
+            for question in form_info.questions.all():
+                answers = Answer.objects.filter(answer_to=question.id)
 
-                if question.question_type == "multiple choice" or question.question_type == "checkbox":
-                    choiceAnswered[question.question] = choiceAnswered.get(question.question ,{})
-
+                if question.question_type in ["multiple choice", "checkbox"]:
+                    choice_answered[question.question] = {}
 
                     for choice in question.choices.all():
-                        choiceAnswered[question.question][choice.choice] = 0 
-
-
+                        choice_answered[question.question][choice.choice] = 0
 
                     for answer in answers:
-                        choice = answer.answer_to.choices.get(choice = answer.answer).choice
-                        choiceAnswered[question.question][choice] = choiceAnswered.get(question.question , {}).get(choice ,0) + 1
-
-
+                        choices = answer.answer if isinstance(answer.answer, list) else [answer.answer]
+                        for choice in choices:
+                            choice_answered[question.question][choice] = choice_answered[question.question].get(choice, 0) + 1
 
                 else:
                     for answer in answers:
                         if non_choices_answer.get(question.question):
                             non_choices_answer[question.question].append(answer.answer)
                         else:
-                            non_choices_answer[question.question] = [answer.answer] 
-    
-                responsesSummary.append({'question' :question , 'answer' : answer})
+                            non_choices_answer[question.question] = [answer.answer]
 
+                responses_summary.append({'question': question, 'answer': answer})
 
-            
             final_list = []
 
-            for answer in choiceAnswered:
+            for answer in choice_answered:
                 final_dict = {}
                 final_dict['question'] = answer
-                final_dict['answer'] = choiceAnswered[answer]
+                final_dict['answer'] = choice_answered[answer]
 
                 final_dict['chartData'] = {
-                    'labels' : choiceAnswered[answer].keys(),
-                    'datasets' : [
-                        {'data' : choiceAnswered[answer].values()}
+                    'labels': choice_answered[answer].keys(),
+                    'datasets': [
+                        {'data': choice_answered[answer].values()}
                     ]
                 }
 
-                final_dict['keys'] = choiceAnswered[answer].keys()
-                final_dict['values'] = choiceAnswered[answer].values()
+                final_dict['keys'] = choice_answered[answer].keys()
+                final_dict['values'] = choice_answered[answer].values()
 
                 final_list.append(final_dict)
 
-
             return Response({
-                'status' : True,
-                'message' : 'success',
-                'data' : {'count' : Responses.objects.filter(response_to__code = pk).count(),'data' : final_list , 'non_choices_answer' : non_choices_answer}
+                'status': True,
+                'message': 'success',
+                'data': {
+                    'count': Responses.objects.filter(response_to__code=pk).count(),
+                    'data': final_list,
+                    'non_choices_answer': non_choices_answer
+                }
             })
 
         except Exception as e:
             print(e)
             return Response({
                 'status': False,
-                'message' : 'something went wrong or you dont have permission to view this',
-                'data' : {}
+                'message': 'something went wrong or you dont have permission to view this',
+                'data': {}
             })
