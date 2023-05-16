@@ -251,7 +251,10 @@ class UserUpdateUserSerializer(ModelSerializer):
             raise ValidationError({"email": "This email is already in use."})
         return value
 
+
     def update(self, instance, validated_data):
+        if 'profile_photo' in validated_data:
+            instance.profile_photo = validated_data['profile_photo']
         instance.first_name = validated_data['first_name']
         instance.last_name = validated_data['last_name']
         instance.phone_number = validated_data['phone_number']
@@ -260,7 +263,6 @@ class UserUpdateUserSerializer(ModelSerializer):
         instance.city = validated_data['city']
         instance.pin = validated_data['pin']
         instance.DOB = validated_data['DOB']
-        instance.profile_photo = validated_data['profile_photo']
 
         instance.save()
 
@@ -289,13 +291,15 @@ class ConductUserUpdateUserSerializer(ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
+        if 'profile_photo' in validated_data:
+            instance.profile_photo = validated_data['profile_photo']
         instance.name = validated_data['name']
         instance.phone_number = validated_data['phone_number']
         instance.country = validated_data['country']
         instance.state = validated_data['state']
         instance.city = validated_data['city']
         instance.pin = validated_data['pin']
-        instance.profile_photo = validated_data['profile_photo']
+      
 
         instance.save()
 
