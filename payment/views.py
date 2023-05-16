@@ -210,6 +210,12 @@ class PaymentIntentView(APIView):
         duration = validated_data["duration"]
         payment_method_id = validated_data["payment_method_id"]
         payment_method_type = validated_data["payment_method_type"]
+        name=validated_data["name"]
+        line1=validated_data["line1"]
+        postal_code=validated_data["postal_code"]
+        city=validated_data["city"]
+        state=validated_data["state"]
+        country=validated_data["country"]
 
         # Get the customer object for the logged in user
         # user = self.request.user
@@ -220,13 +226,13 @@ class PaymentIntentView(APIView):
             # Create a new customer object for the user
             customer = stripe.Customer.create(
                 email=user.email,
-                name="Jenny Rosen",
+                name=name,
                 address={
-                    "line1": "510 Townsend St",
-                    "postal_code": "98140",
-                    "city": "San Francisco",
-                    "state": "CA",
-                    "country": "US",
+                    "line1": line1,
+                    "postal_code": postal_code,
+                    "city": city,
+                    "state": state,
+                    "country": country,
                 },
             )
             user.stripe_customer_id = customer.id

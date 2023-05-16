@@ -107,6 +107,14 @@ class PaymentIntentSerializer(serializers.Serializer):
     duration = serializers.IntegerField(min_value=1, max_value=12)
     payment_method_id = serializers.CharField()
     payment_method_type = serializers.CharField()
+    name=serializers.CharField(max_length=100)
+    line1=serializers.CharField(max_length=100)
+    city=serializers.CharField(max_length=100)
+    postal_code=serializers.CharField(max_length=100)
+    state=serializers.CharField(max_length=100)
+    country=serializers.CharField(max_length=100)
+    
+
 
 class HandelIntentSerializer(serializers.Serializer):
     payment_intent_id = serializers.CharField(max_length=200)
