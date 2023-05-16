@@ -81,7 +81,7 @@ class ConductUserAdmin(UserAdmin):
         (None, {"fields": ("email", "phone_number", "password",)}),
         ("Permissions", {"fields": ("is_staff", "is_active",
          "is_email_verified", "is_phone_verified",)}),
-        ("Details", {"fields": ("name", "country",)}),
+        ("Details", {"fields": ("name", "country","stripe_customer_id")}),
     )
     readonly_fields = (
         "id",

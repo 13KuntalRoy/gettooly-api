@@ -224,6 +224,7 @@ class PaymentIntentView(APIView):
             customer = stripe.Customer.retrieve(user.stripe_customer_id)
         except stripe.error.InvalidRequestError:
             # Create a new customer object for the user
+            
             customer = stripe.Customer.create(
                 email=user.email,
                 name=name,
@@ -234,6 +235,13 @@ class PaymentIntentView(APIView):
                     "state": state,
                     "country": country,
                 },
+                #  address={
+                #     "line1": "510 Townse",
+                #     "postal_code": "98140",
+                #     "city": "San Francisco",
+                #     "state": "CA",
+                #     "country": "US",
+                # },
             )
             user.stripe_customer_id = customer.id
             user.save()
