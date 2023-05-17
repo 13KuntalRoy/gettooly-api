@@ -5,7 +5,7 @@ from payment.views import (
 )
 
 urlpatterns = [
-    path('subscriptions/<int:user_id>/', SubscriptionList.as_view(), name='subscription-list'),
+    path('subscriptions/<int:user_id>/sl', SubscriptionList.as_view(), name='subscription-list'),
     path('subscriptions/<str:pk>/', SubscriptionDetail.as_view(), name='subscription-detail'),
     path('subscriptions/create/', create_subscription, name='create-subscription'),
     path('cancel-subscription/<str:subscription_id>/', CancelSubscriptionView.as_view(), name='cancel-subscription'),

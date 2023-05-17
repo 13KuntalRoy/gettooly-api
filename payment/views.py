@@ -22,7 +22,8 @@ stripe.api_key = "sk_test_51LKc43SJstE3ZNVN1qUjmXNFy1ieonJnEQV4r8JZcZIhBu9IU8K7C
 
 
 class SubscriptionList(ListAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated)
+    authentication_classes = (JWTAuthentication,)
     serializer_class = SubscriptionSerializer
 
     def get_queryset(self):
@@ -33,6 +34,7 @@ class SubscriptionList(ListAPIView):
 
 class SubscriptionDetail(RetrieveAPIView):
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
 
@@ -48,6 +50,7 @@ def create_subscription(request):
 
 class CancelSubscriptionView(APIView):
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
     def post(self, request, subscription_id):
         # Get the subscription object for the logged-in user
         user = request.user
