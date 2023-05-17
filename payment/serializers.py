@@ -16,6 +16,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             "amount",
             "stripe_subscription_id",
             "active",
+            "expires_at",
             "created_at",
             "updated_at",
         )
