@@ -25,7 +25,7 @@ class SubscriptionList(ListAPIView):
     serializer_class = SubscriptionSerializer
 
     def get_queryset(self):
-        user = self.request.user
+        user=ConductUser.objects.get(id=self.request.user.id)
         return Subscription.objects.filter(user=user)
 
 
