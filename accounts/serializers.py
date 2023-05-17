@@ -320,3 +320,9 @@ class SetNewPasswordSerializer(Serializer):
     class Meta:
         fields = ["password", "uidb64", "token"]
 
+
+
+class ConductUserSerializer(ModelSerializer):
+    class Meta:
+        model = ConductUser
+        fields = ('id', 'stripe_customer_id')

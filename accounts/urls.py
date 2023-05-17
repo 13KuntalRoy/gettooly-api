@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
+from accounts.views.conduct_user_si import ConductUserSciAPIView
 from accounts.views.email_verification_link import ConductUserEmailView, UserEmailView
 
 from accounts.views.logout import APILogoutView
@@ -43,5 +44,6 @@ urlpatterns = [
     path("auth/user/email/password-reset-complete/",
          SetNewPasswordAPIView.as_view(), name="password-reset-complete"),
     path("auth/ConductUser/email/verify/link/",ConductUserEmailView.as_view(),name="email-verify-link-conductuser"),
-    path("auth/tUser/email/verify/link/",UserEmailView.as_view(),name="email-verify-link-user")
+    path("auth/tUser/email/verify/link/",UserEmailView.as_view(),name="email-verify-link-user"),
+    path('conduct-users/<int:pk>/scid', ConductUserSciAPIView.as_view(), name='conduct-user-api'),
 ]
