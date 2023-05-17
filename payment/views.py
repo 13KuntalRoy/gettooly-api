@@ -22,7 +22,7 @@ stripe.api_key = "sk_test_51LKc43SJstE3ZNVN1qUjmXNFy1ieonJnEQV4r8JZcZIhBu9IU8K7C
 
 
 class SubscriptionList(ListAPIView):
-    permission_classes = (IsAuthenticated)
+    permission_classes = (IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
     serializer_class = SubscriptionSerializer
 
