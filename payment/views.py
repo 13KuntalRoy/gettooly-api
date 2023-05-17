@@ -1,4 +1,5 @@
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -42,25 +43,22 @@ def create_subscription(request):
     return Response(serializer.data)
 
 
-@api_view(["POST"])
-def cancel_subscription(request, subscription_id):
-    # Get the subscription object for the logged in user
-    user = request.user
-    try:
-        subscription = Subscription.objects.get(id=subscription_id, user=user)
-    except Subscription.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+class CancelSubscriptionView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def post(self, request, subscription_id):
+        # Get the subscription object for the logged-in user
+        user = request.user
+        subscription = get_object_or_404(Subscription, id=subscription_id, user=user)
 
-    # Cancel the subscription in Stripe
-    stripe.api_key = user.stripe_secret_key
-    stripe.Subscription.delete(subscription.stripe_subscription_id)
+        # Cancel the subscription in Stripe
+        stripe.Subscription.delete(subscription.stripe_subscription_id)
 
-    # Update the subscription status in the database
-    subscription.status = "canceled"
-    subscription.save()
+        # Update the subscription status in the database
+        subscription.active = False
+        subscription.save()
 
-    serializer = SubscriptionSerializer(subscription)
-    return Response(serializer.data)
+        serializer = SubscriptionSerializer(subscription)
+        return Response(serializer.data)
 
 
 class CreateOneMonthSubscriptionView(CreateAPIView):
@@ -217,6 +215,7 @@ class PaymentIntentView(APIView):
         state=validated_data["state"]
         country=validated_data["country"]
         currency=validated_data["currency"]
+        # currency="inr"
 
         # Get the customer object for the logged in user
         # user = self.request.user
