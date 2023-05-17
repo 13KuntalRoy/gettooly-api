@@ -50,7 +50,7 @@ class ConductUser(CustomUser):
         upload_to="media/images", null=True, default=""
     
     )
-    stripe_customer_id = models.CharField(max_length=50, blank=True, default="")
+    stripe_customer_id = models.CharField(max_length=50, blank=True, default="",null=True)
 
 
     def __str__(self):
