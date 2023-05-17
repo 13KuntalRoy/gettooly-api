@@ -22,14 +22,17 @@ stripe.api_key = "sk_test_51LKc43SJstE3ZNVN1qUjmXNFy1ieonJnEQV4r8JZcZIhBu9IU8K7C
 
 
 class SubscriptionList(ListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = SubscriptionSerializer
 
     def get_queryset(self):
-        user=ConductUser.objects.get(id=self.request.user.id)
-        return Subscription.objects.filter(user=user)
+        user_id = self.kwargs['user_id']
+        return Subscription.objects.filter(user_id=user_id)
+
 
 
 class SubscriptionDetail(RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
 
