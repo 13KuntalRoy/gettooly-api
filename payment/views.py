@@ -216,6 +216,7 @@ class PaymentIntentView(APIView):
         city=validated_data["city"]
         state=validated_data["state"]
         country=validated_data["country"]
+        currency=validated_data["currency"]
 
         # Get the customer object for the logged in user
         # user = self.request.user
@@ -273,7 +274,7 @@ class PaymentIntentView(APIView):
             payment_method=payment_method_id,
             customer=customer.id,
             amount=amount,
-            currency="usd",
+            currency=currency,
             payment_method_types=[payment_method_type],
             description="Payment for subscription to plan " + plan,
             confirm=True,

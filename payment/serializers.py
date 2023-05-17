@@ -113,6 +113,7 @@ class PaymentIntentSerializer(serializers.Serializer):
     postal_code=serializers.CharField(max_length=100)
     state=serializers.CharField(max_length=100)
     country=serializers.CharField(max_length=100)
+    currency=serializers.CharField(max_length=100)
     
 
 
