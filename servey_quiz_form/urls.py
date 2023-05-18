@@ -5,6 +5,7 @@ from servey_quiz_form.views.answerkey import AnswerKeyView
 
 from servey_quiz_form.views.createfrom import CreateForm
 from servey_quiz_form.views.deletechoice import RemoveChoiceAPIView
+from servey_quiz_form.views.deleteform import FormDeleteAPIView
 from servey_quiz_form.views.deletequestion import DeleteQuestionView
 from servey_quiz_form.views.delres import DeleteResponses
 from servey_quiz_form.views.editres import edit_response
@@ -32,6 +33,7 @@ router.register(r'response', ResponseViewSet, basename='response')
 urlpatterns = [
    
     path("form/create",CreateForm.as_view(), name="create_form"),
+    path('form/<int:pk>/delete/', FormDeleteAPIView.as_view(), name='form-delete'),
     path('form/<str:code>/', FormView.as_view(), name='form-detail'),
     path("form/update/title/<str:code>/",UpdateTitle.as_view(), name="update_title"),
     path("form/update/description/<str:code>/",UpdateDescription.as_view(), name="update_description"),
