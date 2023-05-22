@@ -43,8 +43,12 @@ class Form(models.Model):
     createdAt = models.DateTimeField(auto_now_add = True)
     updatedAt = models.DateTimeField(auto_now = True)
     questions = models.ManyToManyField(Questions, related_name = "questions")
+    available_time =models.DateTimeField(blank=True, null=True) 
+    exam_duration = models.PositiveIntegerField(blank=True, null=True, help_text="Duration of the exam in minutes")
+    form_valid = models.BooleanField(default=True)
     def __str__(self):
         return self.code
+    
 
 class Responses(models.Model):
     response_code = models.CharField(max_length=20)
@@ -59,5 +63,17 @@ class Responses(models.Model):
             self.response.set(self.response.all())
     def __str__(self):
         return self.response_code
+    
+class Result(models.Model):
+    result_code = models.CharField(max_length=20)
+    result_to = models.ForeignKey(Form, on_delete = models.CASCADE, related_name = "result_to")
+    responder = models.ForeignKey(UserQuiz, on_delete = models.CASCADE, related_name = "result_responder")
+    responder_email = models.EmailField(blank = True, null = True)
+    name=models.CharField(max_length=100,blank=True,null=True)
+    score = models.IntegerField()
+    total_score = models.IntegerField()
+    percentage = models.FloatField()
+    def __str__(self):
+        return self.result_code
 
 

@@ -4,6 +4,7 @@ from servey_quiz_form.views.addquestion import CreateQuestionAPIView
 from servey_quiz_form.views.answerkey import AnswerKeyView
 
 from servey_quiz_form.views.createfrom import CreateForm
+from servey_quiz_form.views.createresult import ResultListCreateAPIView
 from servey_quiz_form.views.deletechoice import RemoveChoiceAPIView
 from servey_quiz_form.views.deleteform import FormDeleteAPIView
 from servey_quiz_form.views.deletequestion import DeleteQuestionView
@@ -15,6 +16,7 @@ from servey_quiz_form.views.formview import FormView
 from servey_quiz_form.views.response import ResponseView
 from servey_quiz_form.views.responses import Responses
 from servey_quiz_form.views.responsesview import ResponseViewSet, ResponsesAPI
+from servey_quiz_form.views.result import FormResultsAPIView
 from servey_quiz_form.views.score import EditScoreView
 from servey_quiz_form.views.updatetitle import UpdateTitle
 from servey_quiz_form.views.updatedescription import UpdateDescription
@@ -26,6 +28,8 @@ from servey_quiz_form.views.addchoice import AddChoiceAPIView
 from servey_quiz_form.views.updatechoice import EditChoiceAPIView
 from servey_quiz_form.views.getchoice import Get_choice
 from rest_framework.routers import DefaultRouter
+
+from servey_quiz_form.views.validform import ValidFormsAPIView
 
 router = DefaultRouter()
 router.register(r'response', ResponseViewSet, basename='response')
@@ -57,7 +61,9 @@ urlpatterns = [
     path('form/<str:code>/responses/delete', DeleteResponses.as_view(), name="delete_responses"),
     path('get-client-ip/', GetClientIPView.as_view(), name='get_client_ip'),
     path('user/<int:user_id>/forms/', UserFormListView.as_view(), name='user-form-list'),
-    
+    path('results/', ResultListCreateAPIView.as_view(), name='result-list-create'),
+    path('conductusers/<int:user_id>/forms/<int:form_id>/results/', FormResultsAPIView.as_view(), name='form-results'),
+    path('forms/<int:form_id>/valid/', ValidFormsAPIView.as_view(), name='valid_form'),
     path('' , include(router.urls)),
 
 
