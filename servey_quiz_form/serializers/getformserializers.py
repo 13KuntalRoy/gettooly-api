@@ -21,4 +21,4 @@ class FormSerializer(serializers.ModelSerializer):
         model = Form
         fields = ['id', 'code', 'title', 'description', 'creator', 'background_color', 'text_color',
                   'collect_email', 'authenticated_responder', 'edit_after_submit', 'confirmation_message',
-                  'is_quiz', 'allow_view_score', 'createdAt', 'updatedAt', 'questions']
+                  'is_quiz', 'allow_view_score', 'createdAt', 'updatedAt', 'questions','form_valid']
