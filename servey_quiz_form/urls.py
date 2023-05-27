@@ -16,7 +16,7 @@ from servey_quiz_form.views.formview import FormView
 from servey_quiz_form.views.response import ResponseView
 from servey_quiz_form.views.responses import Responses
 from servey_quiz_form.views.responsesview import ResponseViewSet, ResponsesAPI
-from servey_quiz_form.views.result import FormResultsAPIView
+from servey_quiz_form.views.result import FormResultsAPIView, ResultListAPIView, UserQuizResultListView
 from servey_quiz_form.views.score import EditScoreView
 from servey_quiz_form.views.updatetitle import UpdateTitle
 from servey_quiz_form.views.updatedescription import UpdateDescription
@@ -64,6 +64,8 @@ urlpatterns = [
     path('results/', ResultListCreateAPIView.as_view(), name='result-list-create'),
     path('conductusers/<int:user_id>/forms/<int:form_id>/results/', FormResultsAPIView.as_view(), name='form-results'),
     path('forms/<int:pk>/valid/', ValidFormsAPIView.as_view(), name='valid_form'),
+    path('userquizzes/<int:userquiz_id>/results/', UserQuizResultListView.as_view(), name='userquiz-results'),
+    path('showresult/<int:pk>/', ResultListAPIView.as_view(), name='show_result'),
     path('' , include(router.urls)),
 
 

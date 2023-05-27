@@ -1,9 +1,12 @@
-from accounts.models import ConductUser
-from servey_quiz_form.serializers.resultserializers import ResultSerializer
+from accounts.models import ConductUser, UserQuiz
+from servey_quiz_form.models import Result
+from servey_quiz_form.serializers.resultserializers import ResultSerializer, Show_result
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+
 class FormResultsAPIView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = (JWTAuthentication,)
@@ -21,3 +24,48 @@ class FormResultsAPIView(generics.ListAPIView):
 
         # Retrieve the results associated with the form
         return form.result_to.all()
+
+
+class UserQuizResultListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JWTAuthentication,)
+    serializer_class = ResultSerializer
+    
+
+    def get_queryset(self):
+        # Retrieve the UserQuiz instance based on the provided userquiz_id
+        userquiz_id = self.kwargs['userquiz_id']
+        userquiz = UserQuiz.objects.get(id=userquiz_id)
+        
+        # Retrieve the associated quiz results for the UserQuiz instance
+        results = Result.objects.filter(responder=userquiz)
+        
+        return results
+# class ResultListAPIView(generics.ListCreateAPIView):
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = (JWTAuthentication,)
+#     queryset = Result.objects.all()
+#     serializer_class = Show_result
+
+#     def perform_create(self, serializer):
+#         show_score = self.request.data.get('show_score')
+#         print("+++++++++++++++++++++++++++++++++++++")
+#         print(show_score)
+#         if show_score:
+#             # Update show_score for all Result instances
+#             Result.objects.update(show_score=show_score)
+
+#         serializer.save()
+class ResultListAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JWTAuthentication,)
+    queryset = Result.objects.all()
+    serializer_class = Show_result
+
+    def perform_update(self, serializer):
+        show_score = self.request.data.get('show_score')
+        if show_score:
+            # Update show_score for all Result instances
+            Result.objects.update(show_score=show_score)
+
+        serializer.save()

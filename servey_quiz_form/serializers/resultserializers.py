@@ -8,3 +8,8 @@ class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
         fields = '__all__'
+class Show_result(serializers.ModelSerializer):
+
+    class Meta:
+        model = Result
+        fields = ['show_score']

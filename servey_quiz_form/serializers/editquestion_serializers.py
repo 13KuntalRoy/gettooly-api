@@ -47,7 +47,7 @@ class UpdateQuestionChoiceSerializer(serializers.Serializer):
 
 class UpdateQuestionSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=True)
-    question = serializers.CharField(max_length=10000)
+    question = serializers.CharField(max_length=100000)
     question_type = serializers.CharField(max_length=20)
     required = serializers.BooleanField()
     score = serializers.IntegerField(required=False)
