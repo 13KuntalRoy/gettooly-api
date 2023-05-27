@@ -1,11 +1,13 @@
 from rest_framework import generics
 from django.utils import timezone
 
-from servey_quiz_form.serializers.resultserializers import FormSerializer
+
 from servey_quiz_form.models import Form
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from servey_quiz_form.serializers.validformserializers import FormSerializer
 
 
 class ValidFormsAPIView(generics.UpdateAPIView):
@@ -17,7 +19,7 @@ class ValidFormsAPIView(generics.UpdateAPIView):
 
     def get_queryset(self):
         # Retrieve the form based on the form_id URL parameter
-        form_id = self.kwargs['form_id']
+        form_id = self.kwargs['pk']
         return Form.objects.filter(id=form_id)
 
     def perform_update(self, serializer):

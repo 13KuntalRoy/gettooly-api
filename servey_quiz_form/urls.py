@@ -63,7 +63,7 @@ urlpatterns = [
     path('user/<int:user_id>/forms/', UserFormListView.as_view(), name='user-form-list'),
     path('results/', ResultListCreateAPIView.as_view(), name='result-list-create'),
     path('conductusers/<int:user_id>/forms/<int:form_id>/results/', FormResultsAPIView.as_view(), name='form-results'),
-    path('forms/<int:form_id>/valid/', ValidFormsAPIView.as_view(), name='valid_form'),
+    path('forms/<int:pk>/valid/', ValidFormsAPIView.as_view(), name='valid_form'),
     path('' , include(router.urls)),
 
 
