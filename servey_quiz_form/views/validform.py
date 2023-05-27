@@ -3,9 +3,16 @@ from django.utils import timezone
 
 from servey_quiz_form.serializers.resultserializers import FormSerializer
 from servey_quiz_form.models import Form
+from rest_framework.permissions import IsAuthenticated
+
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 class ValidFormsAPIView(generics.UpdateAPIView):
+    permission_classes = [
+        IsAuthenticated,
+    ]
+    authentication_classes = (JWTAuthentication,)
     serializer_class = FormSerializer
 
     def get_queryset(self):
