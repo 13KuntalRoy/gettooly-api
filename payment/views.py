@@ -377,3 +377,19 @@ class HandlePaymentView(APIView):
             )
             # Payment failed, handle it accordingly
             return Response({"error": "Payment failed"}, status=status.HTTP_400_BAD_REQUEST)
+class SubscriptionDeactivationView(APIView):
+    def put(self, request, user_id):
+        subscriptions = Subscription.objects.filter(user_id=user_id, expires_at__lt=timezone.now())
+
+        if not subscriptions.exists():
+            return Response(
+                {"error": "No subscriptions to deactivate."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        for subscription in subscriptions:
+            subscription.active = False
+            subscription.save()
+        
+        serializer = SubscriptionSerializer(subscriptions, many=True)
+        return Response(serializer.data)

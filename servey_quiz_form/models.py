@@ -72,7 +72,7 @@ class Result(models.Model):
     name=models.CharField(max_length=100,blank=True,null=True)
     score = models.IntegerField()
     total_score = models.IntegerField()
-    percentage = models.FloatField()
+    percentage = models.FloatField(blank=True, null=True)
     show_score = models.BooleanField(default=False, blank=True, null=True)
     def __str__(self):
         return self.result_code
