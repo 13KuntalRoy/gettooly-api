@@ -61,6 +61,12 @@ class Responses(models.Model):
         super(Responses, self).save(*args, **kwargs)
         if self.response.exists():
             self.response.set(self.response.all())
+    # def save(self, *args, **kwargs):
+    #     if self.responder_email and Responses.objects.filter(response_to=self.response_to, responder_email=self.responder_email).count() >= 10:
+    #         raise ValueError("Email submission limit exceeded.")
+    #     super(Responses, self).save(*args, **kwargs)
+    #     if self.response.exists():
+    #         self.response.set(self.response.all())
     def __str__(self):
         return self.response_code
     

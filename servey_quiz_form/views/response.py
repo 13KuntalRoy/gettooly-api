@@ -54,7 +54,10 @@ class ResponseView(generics.RetrieveAPIView):
 
                         # Calculate partial credit based on number of correct answers selected
                         num_correct = len(set(selected_answers) & set(correct_answers))
-                        partial_credit = response.answer_to.score * num_correct / len(correct_answers)
+                        if len(correct_answers) > 0:
+                            partial_credit = response.answer_to.score * num_correct / len(correct_answers)
+                        else:
+                            partial_credit = 0
                         score += partial_credit
 
         serialized_form = FormSerializer(formInfo)
