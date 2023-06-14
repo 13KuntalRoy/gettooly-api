@@ -14,6 +14,7 @@ TYPE_CHOICES = (
         ('price_1N8e2BSJstE3ZNVNcl64vI9B', _("D")),
     )
 
+
 class Subscription(models.Model):
     user = models.ForeignKey(
     ConductUser, on_delete=models.CASCADE, related_name="subscriptions"
@@ -28,3 +29,22 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.plan} - ${self.amount}"
+
+    def save(self, *args, **kwargs):
+        if self.plan == 'price_1NIqyoSJstE3ZNVNgNzVWHAc':
+            self.plan = 'A'
+        if self.plan == 'price_1NIr2TSJstE3ZNVNuK1U5LsH':
+            self.plan = 'A'
+        if self.plan == 'price_1N8e0kSJstE3ZNVNLmyt8xpP':
+            self.plan = 'B'
+        if self.plan == 'price_1N8e0kSJstE3ZNVNzjjm5OFl':
+            self.plan = 'B'
+        if self.plan == 'price_1N8e1bSJstE3ZNVNwgCZ4sKL':
+            self.plan = 'C'
+        if self.plan == 'price_1N8e1bSJstE3ZNVNW6LQCFiH':
+            self.plan = 'C'
+        if self.plan == 'price_1N8e2BSJstE3ZNVN3ceChJtq':
+            self.plan = 'D'
+        if self.plan == 'price_1N8e2BSJstE3ZNVNcl64vI9B':
+            self.plan = 'D'
+        super().save(*args, **kwargs)
