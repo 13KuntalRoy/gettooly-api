@@ -4,10 +4,15 @@ from django.db import models
 from datetime import  timedelta
 from accounts.models import  ConductUser
 TYPE_CHOICES = (
-    ('price_1NIqyoSJstE3ZNVNgNzVWHAc' or 'price_1NIr2TSJstE3ZNVNuK1U5LsH', _("A")),
-    ('price_1N8e0kSJstE3ZNVNLmyt8xpP' or 'price_1N8e0kSJstE3ZNVNzjjm5OFl', _("B")),
-    ('price_1N8e1bSJstE3ZNVNwgCZ4sKL' or 'price_1N8e1bSJstE3ZNVNW6LQCFiH', _("C")),
-    ('price_1N8e2BSJstE3ZNVN3ceChJtq' or 'price_1N8e2BSJstE3ZNVNcl64vI9B', _("D")),
+
+    ('A', _("price_1NIqyoSJstE3ZNVNgNzVWHAc")),
+    ('A',_("price_1NIr2TSJstE3ZNVNuK1U5LsH")),
+    ('B',_("price_1N8e0kSJstE3ZNVNLmyt8xpP")),
+    ('B',_("price_1N8e0kSJstE3ZNVNzjjm5OFl")),
+    ('C',_("price_1N8e1bSJstE3ZNVNwgCZ4sKL")), 
+    ('C',_("price_1N8e1bSJstE3ZNVNW6LQCFiH")),
+    ('D',_("price_1N8e2BSJstE3ZNVN3ceChJtq")),
+    ('D',_("price_1N8e2BSJstE3ZNVNcl64vI9B")),
 )
 
 class Subscription(models.Model):
