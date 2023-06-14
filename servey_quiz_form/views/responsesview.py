@@ -113,97 +113,108 @@ class ResponseViewSet(viewsets.ModelViewSet):
     #         return Response({'status' : False ,'message' : 'something went wrong' , 'data' : {}})
 
 
-@action(detail=False, methods=['post'])
-def store_responses(self, request):
-    try:
-        data = request.data
+    @action(detail=False, methods=['post'])
+    def store_responses(self, request):
+        try:
+            data = request.data
 
-        if data.get('form_id') is None or data.get('responses') is None:
-            return Response({
-                'status': False,
-                'message': 'form_id and responses both are required',
-                'data': {}
-            })
+            if data.get('form_id') is None or data.get('responses') is None:
+                return Response({
+                    'status': False,
+                    'message': 'form_id and responses both are required',
+                    'data': {}
+                })
 
-        form_id = data.get('form_id')
-        responses = data.get('responses')
-        form = Form.objects.filter(id=form_id).first()
-        if form is None:
-            return Response({
-                'status': False,
-                'message': 'Form not found',
-                'data': {}
-            })
+            form_id = data.get('form_id')
+            responses = data.get('responses')
+            form = Form.objects.filter(id=form_id).first()
+            if form is None:
+                return Response({
+                    'status': False,
+                    'message': 'Form not found',
+                    'data': {}
+                })
 
-        conduct_user = form.creator
+            conduct_user = form.creator
+            print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+            print(conduct_user)
 
-        # Get the subscription plan of the conduct user
-        subscription = Subscription.objects.filter(user=conduct_user).first()
-        if subscription is None:
-            return Response({
-                'status': False,
-                'message': 'Subscription not found for the conduct user',
-                'data': {}
-            })
+            # Get the subscription plan of the conduct user
+            subscription = Subscription.objects.filter(user=conduct_user).last()
+            if subscription is None:
+                return Response({
+                    'status': False,
+                    'message': 'Subscription not found for the conduct user',
+                    'data': {}
+                })
 
-        form_plan = subscription.plan
+            form_plan = subscription.plan
+            print("+++++++++++++++++++++++++++++++++++++++++++++++++")
+            print(form_plan)
 
-        # Count the number of submissions for the form
-        submission_count = Responses.objects.filter(response_to=form).count()
+            # Count the number of submissions for the form
+            submission_count = Responses.objects.filter(response_to=form).count()
+            print("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB")
+            print(submission_count)
 
-        # Check if the submission count exceeds the form's plan limit
-        form_limit = {
-            'A': 2,
-            'B': 6,
-            'C': 8,
-            'D': 9
-        }
-        if submission_count >= form_limit.get(form_plan, 0):
-            return Response({
-                'status': False,
-                'message': 'Submission limit exceeded for the form',
-                'data': {}
-            })
+            # Check if the submission count exceeds the form's plan limit
+            form_limit = {
+                'A': 2,
+                'B': 6,
+                'C': 8,
+                'D': 9
+            }
+            if submission_count >= form_limit.get(form_plan, 0):
 
-        response_obj = Responses.objects.create(
-            response_code=generate_random_string(15),
-            response_to=form,
-            responder_ip=data.get('responder_ip'),
-            responder_email=data.get('responder_email'),
-            responder=UserQuiz.objects.get(id=self.request.user.id)
-        )
+                return Response({
+                    'status': False,
+                    'message': 'Submission limit exceeded for the form',
+                    'data': {}
+                })
+            print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx")
 
-        for response in responses:
-            question_obj = Questions.objects.filter(id=response['question']).first()
-            if question_obj:
-                if question_obj.question_type == 'checkbox':
-                    for answer in response.get('answer', []):
+            response_obj = Responses.objects.create(
+                response_code=generate_random_string(15),
+                response_to=Form.objects.get(id = data.get('form_id')),
+                responder_ip=data.get('responder_ip'),
+                responder_email=data.get('responder_email'),
+                responder=UserQuiz.objects.get(id=self.request.user.id)
+            )
+            print("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC")
+            print(response_obj.__dict__)
+
+            for response in responses:
+                question_obj = Questions.objects.filter(id=response['question']).first()
+                if question_obj:
+                    if question_obj.question_type == 'checkbox':
+                        for answer in response.get('answer', []):
+                            answer_obj = Answer.objects.create(
+                                answer=answer,
+                                answer_to=question_obj
+                            )
+                            response_obj.response.add(answer_obj)
+                    else:
+                        answer = response.get('answer')
                         answer_obj = Answer.objects.create(
                             answer=answer,
                             answer_to=question_obj
                         )
                         response_obj.response.add(answer_obj)
-                else:
-                    answer = response.get('answer')
-                    answer_obj = Answer.objects.create(
-                        answer=answer,
-                        answer_to=question_obj
-                    )
-                    response_obj.response.add(answer_obj)
+            print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD")
+            return Response({
+                'status': True,
+                'message': 'Response captured',
+                'data': {"response_code": response_obj.response_code}
+            })
 
-        return Response({
-            'status': True,
-            'message': 'Response captured',
-            'data': {"response_code": response_obj.response_code}
-        })
+        except Exception as e:
+            print(e)
+            return Response({
+                'status': False,
+                'message': 'Something went wrong',
+                'data': {}
+            })
 
-    except Exception as e:
-        print(e)
-        return Response({
-            'status': False,
-            'message': 'Something went wrong',
-            'data': {}
-        })
 
 # class ResponsesAPI(APIView):
 #     permission_classes = [IsAuthenticated]

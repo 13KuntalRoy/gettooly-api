@@ -202,7 +202,7 @@ class ResponseView(generics.RetrieveAPIView):
         conduct_user = form_info.creator
 
         # Get the subscription plan of the conduct user
-        subscription = Subscription.objects.filter(user=conduct_user).first()
+        subscription = Subscription.objects.filter(user=conduct_user).last()
         if subscription is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
