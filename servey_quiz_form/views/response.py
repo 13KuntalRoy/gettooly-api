@@ -73,6 +73,113 @@ from rest_framework.response import Response
 #         })
 
 
+# class ResponseView(generics.RetrieveAPIView):
+#     permission_classes = [IsAuthenticated]
+#     authentication_classes = [JWTAuthentication]
+#     serializer_class = ResponsesSerializer
+
+#     def get(self, request, code, response_code):
+#         form_info = Form.objects.filter(code=code).first()
+#         if form_info is None:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+#         elif not form_info.allow_view_score:
+#             return Response(status=status.HTTP_403_FORBIDDEN)
+
+#         total_score = 0
+#         score = 0
+
+#         response_info = Responses.objects.filter(response_code=response_code).first()
+#         if response_info is None:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+        
+#         # Get the submission count based on the form's subscription plan
+#         conduct_user = form_info.creator
+#         subscription = Subscription.objects.filter(user=conduct_user).first()
+#         if subscription is None:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+        
+#         submission_counts = Responses.objects.filter(response_to=form_info, responder_email__isnull=False) \
+#             .values('responder_email') \
+#             .annotate(submission_count=Count('responder_email'))
+        
+#         # Get the submission count based on the form's subscription plan
+#         plan_submission_counts = {
+#             'A': 0,
+#             'B': 0,
+#             'C': 0,
+#             'D': 0
+#         }
+
+#         for submission in submission_counts:
+#             email = submission['responder_email']
+#             count = submission['submission_count']
+#             if email in plan_submission_counts:
+#                 plan_submission_counts[email] = count
+
+#         # Retrieve the submission count based on the form's subscription plan
+#         form_plan = subscription.plan
+#         submission_count = plan_submission_counts.get(form_plan, 0)
+
+#         if form_info.is_quiz:
+#             for question in form_info.questions.all():
+#                 total_score += question.score
+#                 for response in response_info.response.filter(answer_to__pk=question.pk):
+#                     if response.answer_to.question_type == "short" or response.answer_to.question_type == "paragraph":
+#                         if response.answer == response.answer_to.answer_key:
+#                             score += response.answer_to.score
+#                     elif response.answer_to.question_type == "multiple choice":
+#                         answer_key = None
+#                         for choice in response.answer_to.choices.all():
+#                             if choice.is_answer:
+#                                 answer_key = choice.id
+#                         if answer_key is not None and str(answer_key) == str(response.answer):
+#                             score += response.answer_to.score
+#                     elif response.answer_to.question_type == "checkbox":
+#                         # Get all responses for this question
+#                         question_responses = response_info.response.filter(answer_to__pk=response.answer_to.pk)
+#                         selected_answers = []
+#                         correct_answers = []
+#                         for question_response in question_responses:
+#                             selected_answers.append(question_response.answer)
+#                             for choice in question_response.answer_to.choices.all():
+#                                 if choice.is_answer and choice.pk not in correct_answers:
+#                                     correct_answers.append(choice.pk)
+
+#                         # Calculate partial credit based on number of correct answers selected
+#                         num_correct = len(set(selected_answers) & set(correct_answers))
+#                         if len(correct_answers) > 0:
+#                             partial_credit = response.answer_to.score * num_correct / len(correct_answers)
+#                         else:
+#                             partial_credit = 0
+#                         score += partial_credit
+
+#         serialized_form = FormSerializer(form_info)
+#         serialized_response = self.serializer_class(response_info, context={'request': request})
+
+#         response_data = {
+#             "form": serialized_form.data,
+#             "response": serialized_response.data,
+#             "score": score,
+#             "total_score": total_score,
+#             "submission_count": submission_count
+#         }
+
+#         # Check if submission count exceeds the form's plan limit
+#         form_limit = {
+#             'A': 2,
+#             'B': 6,
+#             'C': 8,
+#             'D': 9
+#         }
+#         if submission_count >= form_limit.get(form_plan, 0):
+#             response_data["exceeded_limit"] = True
+#         else:
+#             response_data["exceeded_limit"] = False
+
+#         return Response(response_data)
+
+
+
 class ResponseView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
     authentication_classes = [JWTAuthentication]
@@ -92,35 +199,23 @@ class ResponseView(generics.RetrieveAPIView):
         if response_info is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
-        # Get the submission count based on the form's subscription plan
         conduct_user = form_info.creator
+
+        # Get the subscription plan of the conduct user
         subscription = Subscription.objects.filter(user=conduct_user).first()
         if subscription is None:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
-        submission_counts = Responses.objects.filter(response_to=form_info, responder_email__isnull=False) \
-            .values('responder_email') \
-            .annotate(submission_count=Count('responder_email'))
-        
-        # Get the submission count based on the form's subscription plan
-        plan_submission_counts = {
-            'A': 0,
-            'B': 0,
-            'C': 0,
-            'D': 0
-        }
 
-        for submission in submission_counts:
-            email = submission['responder_email']
-            count = submission['submission_count']
-            if email in plan_submission_counts:
-                plan_submission_counts[email] = count
-
-        # Retrieve the submission count based on the form's subscription plan
         form_plan = subscription.plan
-        submission_count = plan_submission_counts.get(form_plan, 0)
+
+        # Get the total number of submissions for the form
+        submission_count = Responses.objects.filter(response_to=form_info, responder_email__isnull=False) \
+            .values('responder_email') \
+            .distinct() \
+            .count()
 
         if form_info.is_quiz:
+            # Calculate the score for the response
             for question in form_info.questions.all():
                 total_score += question.score
                 for response in response_info.response.filter(answer_to__pk=question.pk):
@@ -145,7 +240,7 @@ class ResponseView(generics.RetrieveAPIView):
                                 if choice.is_answer and choice.pk not in correct_answers:
                                     correct_answers.append(choice.pk)
 
-                        # Calculate partial credit based on number of correct answers selected
+                        # Calculate partial credit based on the number of correct answers selected
                         num_correct = len(set(selected_answers) & set(correct_answers))
                         if len(correct_answers) > 0:
                             partial_credit = response.answer_to.score * num_correct / len(correct_answers)
@@ -164,7 +259,7 @@ class ResponseView(generics.RetrieveAPIView):
             "submission_count": submission_count
         }
 
-        # Check if submission count exceeds the form's plan limit
+        # Check if the submission count exceeds the form's plan limit
         form_limit = {
             'A': 2,
             'B': 6,
@@ -177,7 +272,6 @@ class ResponseView(generics.RetrieveAPIView):
             response_data["exceeded_limit"] = False
 
         return Response(response_data)
-
 # class ResponseView(generics.RetrieveAPIView):
 #     permission_classes = [IsAuthenticated]
 #     authentication_classes = (JWTAuthentication,)
