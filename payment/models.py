@@ -19,7 +19,7 @@ class Subscription(models.Model):
     user = models.ForeignKey(
     ConductUser, on_delete=models.CASCADE, related_name="subscriptions"
     )
-    plan = models.CharField(max_length=100, choices=TYPE_CHOICES, default="price_1NIqyoSJstE3ZNVNgNzVWHAc")
+    plan = models.CharField(max_length=100, choices=TYPE_CHOICES, default="A")
     amount = models.IntegerField()
     stripe_subscription_id = models.CharField(max_length=40, blank=True)
     active = models.BooleanField(default=True)
