@@ -4,17 +4,17 @@ from django.db import models
 from datetime import  timedelta
 from accounts.models import  ConductUser
 TYPE_CHOICES = (
-    ('free', _("A")),
-    ('price_1N8e0kSJstE3ZNVNLmyt8xpP', _("B")),
-    ('price_1N8e1bSJstE3ZNVNwgCZ4sKL', _("C")),
-    ('price_1N8e2BSJstE3ZNVN3ceChJtq', _("D")),
+    ('price_1NIqyoSJstE3ZNVNgNzVWHAc' or 'price_1NIr2TSJstE3ZNVNuK1U5LsH', _("A")),
+    ('price_1N8e0kSJstE3ZNVNLmyt8xpP' or 'price_1N8e0kSJstE3ZNVNzjjm5OFl', _("B")),
+    ('price_1N8e1bSJstE3ZNVNwgCZ4sKL' or 'price_1N8e1bSJstE3ZNVNW6LQCFiH', _("C")),
+    ('price_1N8e2BSJstE3ZNVN3ceChJtq' or 'price_1N8e2BSJstE3ZNVNcl64vI9B', _("D")),
 )
 
 class Subscription(models.Model):
     user = models.ForeignKey(
     ConductUser, on_delete=models.CASCADE, related_name="subscriptions"
     )
-    plan = models.CharField(max_length=100, choices=TYPE_CHOICES, default="free")
+    plan = models.CharField(max_length=100, choices=TYPE_CHOICES, default="price_1NIqyoSJstE3ZNVNgNzVWHAc")
     amount = models.IntegerField()
     stripe_subscription_id = models.CharField(max_length=40, blank=True)
     active = models.BooleanField(default=True)
