@@ -166,7 +166,7 @@ class ResponseView(generics.RetrieveAPIView):
 
         # Check if submission count exceeds the form's plan limit
         form_limit = {
-            'A': 5,
+            'A': 2,
             'B': 6,
             'C': 8,
             'D': 9
