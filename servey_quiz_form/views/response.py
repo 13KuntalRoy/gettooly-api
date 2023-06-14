@@ -117,7 +117,7 @@ class ResponseView(generics.RetrieveAPIView):
                 plan_submission_counts[email] = count
 
         # Retrieve the submission count based on the form's subscription plan
-        form_plan = form_info.subscription_plan
+        form_plan = subscription.plan
         submission_count = plan_submission_counts.get(form_plan, 0)
 
         if form_info.is_quiz:
