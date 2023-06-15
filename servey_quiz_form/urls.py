@@ -65,7 +65,8 @@ urlpatterns = [
     path('conductusers/<int:user_id>/forms/<int:form_id>/results/', FormResultsAPIView.as_view(), name='form-results'),
     path('forms/<int:pk>/valid/', ValidFormsAPIView.as_view(), name='valid_form'),
     path('userquizzes/<int:userquiz_id>/results/', UserQuizResultListView.as_view(), name='userquiz-results'),
-    path('showresult/<int:pk>/', ResultListAPIView.as_view(), name='show_result'),
+    # path('showresult/<int:pk>/', ResultListAPIView.as_view(), name='show_result'),
+    path('results/<int:form_id>/conductusers/<int:pk>/', ResultListAPIView.as_view(), name='result-list'),
     path('' , include(router.urls)),
 
 
