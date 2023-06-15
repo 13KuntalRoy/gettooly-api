@@ -38,7 +38,7 @@ class UserQuizResultListView(generics.ListAPIView):
         userquiz = UserQuiz.objects.get(id=userquiz_id)
         
         # Retrieve the associated quiz results for the UserQuiz instance
-        results = Result.objects.filter(responder=userquiz)
+        results = Result.objects.filter(responder=userquiz,show_score=True)
         
         return results
 # class ResultListAPIView(generics.ListCreateAPIView):
