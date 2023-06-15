@@ -71,6 +71,7 @@ class Responses(models.Model):
         return self.response_code
     
 class Result(models.Model):
+    quiz_name=models.CharField(max_length=100,blank=True,null=True)
     result_code = models.CharField(max_length=20)
     result_to = models.ForeignKey(Form, on_delete = models.CASCADE, related_name = "result_to")
     responder = models.ForeignKey(UserQuiz, on_delete = models.CASCADE, related_name = "result_responder")
