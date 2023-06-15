@@ -214,39 +214,184 @@ class ResponseView(generics.RetrieveAPIView):
             .distinct() \
             .count()
 
+        # if form_info.is_quiz:
+        #     # Calculate the score for the response
+        #     for question in form_info.questions.all():
+        #         total_score += question.score
+        #         for response in response_info.response.filter(answer_to__pk=question.pk):
+
+        #             print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        #             print(response.answer_to.question_type)
+        #             print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        #             if response.answer_to.question_type == "short" or response.answer_to.question_type == "paragraph":
+        #                 if response.answer == response.answer_to.answer_key:
+        #                     score += response.answer_to.score
+        #             if response.answer_to.question_type == "multiple choice":
+        #                 selected_answer_text = response.answer
+        #                 selected_choice = response.answer_to.choices.filter(choice=selected_answer_text).first()
+                        
+        #                 if selected_choice and selected_choice.is_answer:
+        #                     score += response.answer_to.score
+        #                     print(score)
+        #                     response_answer_id = selected_choice.id
+        #                     print("Selected Answer ID:", response_answer_id)
+        #             # elif response.answer_to.question_type == "multiple choice":
+        #             #     answer_key = None
+        #             #     for choice in response.answer_to.choices.all():
+        #             #         if choice.is_answer:
+        #             #             answer_key = choice.id
+        #             #     print("======================================================")
+        #             #     print(answer_key)
+        #             #     print(response.answer)
+        #             #     if answer_key is not None and str(answer_key) == str(response.answer):
+        #             #         score += response.answer_to.score
+        #             #         print(score)
+        #                 print("======================================================")
+        #             # elif response.answer_to.question_type == "checkbox":
+        #             #     # Get all responses for this question
+        #             #     question_responses = response_info.response.filter(answer_to__pk=response.answer_to.pk)
+        #             #     selected_answers = []
+        #             #     correct_answers = []
+        #             #     for question_response in question_responses:
+        #             #         selected_answers.append(question_response.answer)
+        #             #         for choice in question_response.answer_to.choices.all():
+        #             #             if choice.is_answer:
+        #             #                 correct_answers.append(choice.pk)
+
+        #             #     # Calculate partial credit based on the number of correct answers selected
+        #             #     num_correct = len(set(selected_answers) & set(correct_answers))
+        #             #     if len(correct_answers) > 0:
+        #             #         partial_credit = response.answer_to.score * num_correct / len(correct_answers)
+        #             #     else:
+        #             #         partial_credit = 0
+        #             #     score += partial_credit
+        #             #     response_answer_ids = [choice_id for choice_id in correct_answers if str(choice_id) in selected_answers]
+        #             #     print("Selected Answer IDs:", response_answer_ids)
+
+        #             # elif response.answer_to.question_type == "checkbox":
+        #             #     # Get all responses for this question
+        #             #     print("======================================================++")
+        #             #     question_responses = response_info.response.filter(answer_to__pk=response.answer_to.pk)
+        #             #     selected_answers = []
+        #             #     correct_choices = response.answer_to.choices.filter(is_answer=True)
+
+        #             #     for question_response in question_responses:
+        #             #         selected_answers.extend(question_response.answer.split(','))
+        #             #     print("======================================================+++")
+        #             #     print(question_responses)
+        #             #     print(selected_answers)
+        #             #     print(correct_choices)
+        #             #     print("======================================================+++")
+        #             #     print("======================================================++")
+
+        #             #     # Calculate the score
+        #             #     if len(correct_choices) > 0:
+        #             #         num_correct = len(set(selected_answers) & set(str(choice.id) for choice in correct_choices))
+        #             #         if len(correct_choices) > 0:
+        #             #             partial_credit = response.answer_to.score * num_correct / len(correct_choices)
+        #             #             score += partial_credit
+        #             # elif response.answer_to.question_type == "checkbox":
+        #             #     # Get all responses for this question
+        #             #     question_responses = response_info.response.filter(answer_to__pk=response.answer_to.pk)
+        #             #     selected_answers = []
+        #             #     correct_choices = response.answer_to.choices.filter(is_answer=True)
+
+        #             #     for question_response in question_responses:
+        #             #         selected_answers.extend(question_response.answer.split(','))
+
+        #             #     # Calculate the score
+        #             #     num_selected = len(selected_answers)
+        #             #     selected_set = set(selected_answers)
+        #             #     correct_answers_set = set(choice.choice for choice in correct_choices)
+        #             #     num_correct = len(selected_set.intersection(correct_answers_set))
+
+        #             #     if num_selected > 0 and num_correct == len(correct_answers_set):
+        #             #         # All correct answers selected, give full credit
+        #             #         score += response.answer_to.score
+        #             #     elif num_correct > 0:
+        #             #         # Some correct answers selected, give partial credit
+        #             #         partial_credit = response.answer_to.score * num_correct / len(correct_answers_set)
+        #             #         score += partial_credit
+        #             #     else:
+        #             #         # No correct answers selected, give 0 score
+        #             #         score += 0
+        #             elif response.answer_to.question_type == "checkbox":
+        #                 # Get all responses for this question
+        #                 question_responses = response_info.response.filter(answer_to__pk=response.answer_to.pk)
+        #                 selected_answers = []
+
+        #                 for question_response in question_responses:
+        #                     selected_answers.extend(question_response.answer.split(','))
+
+        #                 # Calculate the score only once
+        #                 if not selected_answers:
+        #                     # No answer selected, give 0 score
+        #                     score += 0
+        #                 else:
+        #                     correct_choices = response.answer_to.choices.filter(is_answer=True)
+        #                     num_selected = len(selected_answers)
+        #                     selected_set = set(selected_answers)
+        #                     correct_answers_set = set(choice.choice for choice in correct_choices)
+        #                     num_correct = len(selected_set.intersection(correct_answers_set))
+
+        #                     if num_correct == len(correct_choices) and num_correct == num_selected:
+        #                         # All correct answers selected, give full credit
+        #                         score += response.answer_to.score
+        #                     elif num_correct > 0:
+        #                         # Some correct answers selected, give partial credit
+        #                         partial_credit = response.answer_to.score * num_correct / len(correct_choices)
+        #                         score += partial_credit
+        #                     else:
+        #                         # No correct answers selected, give 0 score
+        #                         score += 0
         if form_info.is_quiz:
             # Calculate the score for the response
             for question in form_info.questions.all():
                 total_score += question.score
-                for response in response_info.response.filter(answer_to__pk=question.pk):
-                    if response.answer_to.question_type == "short" or response.answer_to.question_type == "paragraph":
-                        if response.answer == response.answer_to.answer_key:
-                            score += response.answer_to.score
-                    elif response.answer_to.question_type == "multiple choice":
-                        answer_key = None
-                        for choice in response.answer_to.choices.all():
-                            if choice.is_answer:
-                                answer_key = choice.id
-                        if answer_key is not None and str(answer_key) == str(response.answer):
-                            score += response.answer_to.score
-                    elif response.answer_to.question_type == "checkbox":
-                        # Get all responses for this question
-                        question_responses = response_info.response.filter(answer_to__pk=response.answer_to.pk)
-                        selected_answers = []
-                        correct_answers = []
-                        for question_response in question_responses:
-                            selected_answers.append(question_response.answer)
-                            for choice in question_response.answer_to.choices.all():
-                                if choice.is_answer and choice.pk not in correct_answers:
-                                    correct_answers.append(choice.pk)
 
-                        # Calculate partial credit based on the number of correct answers selected
-                        num_correct = len(set(selected_answers) & set(correct_answers))
-                        if len(correct_answers) > 0:
-                            partial_credit = response.answer_to.score * num_correct / len(correct_answers)
+                if question.question_type == "short" or question.question_type == "paragraph":
+                    response = response_info.response.filter(answer_to__pk=question.pk).first()
+                    if response and response.answer == question.answer_key:
+                        score += question.score
+                elif question.question_type == "multiple choice":
+                    response = response_info.response.filter(answer_to__pk=question.pk).first()
+                    if response:
+                        selected_answer_text = response.answer
+                        selected_choice = question.choices.filter(choice=selected_answer_text).first()
+                        if selected_choice and selected_choice.is_answer:
+                            score += question.score
+                elif question.question_type == "checkbox":
+                    # Get all responses for this question
+                    question_responses = response_info.response.filter(answer_to__pk=question.pk)
+                    selected_answers = []
+
+                    for question_response in question_responses:
+                        selected_answers.extend(question_response.answer.split(','))
+
+                    # Calculate the score only once
+                    if not selected_answers:
+                        # No answer selected, give 0 score
+                        score += 0
+                    else:
+                        correct_choices = question.choices.filter(is_answer=True)
+                        num_selected = len(selected_answers)
+                        selected_set = set(selected_answers)
+                        correct_answers_set = set(choice.choice for choice in correct_choices)
+                        num_correct = len(selected_set.intersection(correct_answers_set))
+
+                        if num_correct == len(correct_choices) and num_correct == num_selected:
+                            # All correct answers selected, give full credit
+                            score += question.score
+                        elif num_correct > 0:
+                            # Some correct answers selected, give partial credit
+                            partial_credit = question.score * num_correct / len(correct_choices)
+                            score += partial_credit
                         else:
-                            partial_credit = 0
-                        score += partial_credit
+                            # No correct answers selected, give 0 score
+                            score += 0
+
+                   
+
 
         serialized_form = FormSerializer(form_info)
         serialized_response = self.serializer_class(response_info, context={'request': request})
