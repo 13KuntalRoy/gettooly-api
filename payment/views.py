@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from accounts.models import ConductUser
 from payment.models import Subscription
-from payment.serializers import HandelIntentSerializer, SubscriptionSerializer, PaymentIntentSerializer
+from payment.serializers import FreeSubscriptionSerializer, HandelIntentSerializer, SubscriptionSerializer, PaymentIntentSerializer
 import stripe
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
@@ -393,3 +393,28 @@ class SubscriptionDeactivationView(APIView):
         
         serializer = SubscriptionSerializer(subscriptions, many=True)
         return Response(serializer.data)
+    
+
+class SubscriptionFreeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JWTAuthentication,)
+    def post(self, request):
+        request.data["active"] = True  # Set active field to True
+        request.data["user"] = request.user.id  # Set user field to current user
+        serializer = FreeSubscriptionSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+class SubscriptionFreeCancelAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = (JWTAuthentication,)
+    def post(self, request, subscription_id):
+        try:
+            subscription = Subscription.objects.get(id=subscription_id)
+        except Subscription.DoesNotExist:
+            return Response({'detail': 'Subscription not found.'}, status=404)
+
+        subscription.active = False
+        subscription.save()
+        return Response({'detail': 'Subscription canceled successfully.'}, status=200)

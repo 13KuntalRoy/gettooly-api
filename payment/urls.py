@@ -1,7 +1,7 @@
 from django.urls import path
 from payment.views import (
     CancelSubscriptionView, HandlePaymentView, SubscriptionDeactivationView, SubscriptionList, SubscriptionDetail, create_subscription, 
-    CreateOneMonthSubscriptionView, PaymentIntentView
+    CreateOneMonthSubscriptionView, PaymentIntentView,SubscriptionFreeAPIView,SubscriptionFreeCancelAPIView
 )
 
 urlpatterns = [
@@ -12,5 +12,8 @@ urlpatterns = [
     path('subscriptions/create-one-month/', CreateOneMonthSubscriptionView.as_view(), name='create-one-month-subscription'),
     path('payment-intent/', PaymentIntentView.as_view(), name='payment-intent'),
     path('users/<int:user_id>/subscriptions/deactivate/', SubscriptionDeactivationView.as_view(), name='subscription-deactivate'),
-    path('payment-handel/', HandlePaymentView.as_view(), name='payment-handel')
+    path('payment-handel/', HandlePaymentView.as_view(), name='payment-handel'),
+
+    path('freesubscriptions/', SubscriptionFreeAPIView.as_view(), name='subscription-create'),
+    path('freesubscriptions/<int:subscription_id>/cancel/', SubscriptionFreeCancelAPIView.as_view(), name='subscription-cancel'),
 ]

@@ -20,6 +20,17 @@ class SubscriptionSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
+class FreeSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = (
+            "id",
+            "user",
+            "plan",
+            "amount",
+            "active",
+            "created_at",
+        )
 
 # class PaymentIntentSerializer(serializers.Serializer):
 #     stripe.api_key = "sk_test_51LKc43SJstE3ZNVN1qUjmXNFy1ieonJnEQV4r8JZcZIhBu9IU8K7CweoKSEmwvuPOumeeWdgQxI06cWYq1YDGlj700YkcQHgd9"

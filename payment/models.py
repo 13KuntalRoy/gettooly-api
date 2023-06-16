@@ -4,8 +4,8 @@ from django.db import models
 from datetime import  timedelta
 from accounts.models import  ConductUser
 TYPE_CHOICES = (
-        ('price_1NIqyoSJstE3ZNVNgNzVWHAc', _("A")),
-        ('price_1NIr2TSJstE3ZNVNuK1U5LsH', _("A")),
+        ('A', _("A")),
+        ('A', _("A")),
         ('price_1N8e0kSJstE3ZNVNLmyt8xpP', _("B")),
         ('price_1N8e0kSJstE3ZNVNzjjm5OFl', _("B")),
         ('price_1N8e1bSJstE3ZNVNwgCZ4sKL', _("C")), 
@@ -19,7 +19,7 @@ class Subscription(models.Model):
     user = models.ForeignKey(
     ConductUser, on_delete=models.CASCADE, related_name="subscriptions"
     )
-    plan = models.CharField(max_length=100, choices=TYPE_CHOICES, default="price_1NIqyoSJstE3ZNVNgNzVWHAc")
+    plan = models.CharField(max_length=100, choices=TYPE_CHOICES, default="A")
     amount = models.IntegerField()
     stripe_subscription_id = models.CharField(max_length=40, blank=True)
     active = models.BooleanField(default=True)
@@ -31,9 +31,7 @@ class Subscription(models.Model):
         return f"{self.user.email} - {self.plan} - ${self.amount}"
 
     def save(self, *args, **kwargs):
-        if self.plan == 'price_1NIqyoSJstE3ZNVNgNzVWHAc':
-            self.plan = 'A'
-        if self.plan == 'price_1NIr2TSJstE3ZNVNuK1U5LsH':
+        if self.plan == 'A':
             self.plan = 'A'
         if self.plan == 'price_1N8e0kSJstE3ZNVNLmyt8xpP':
             self.plan = 'B'
